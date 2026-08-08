@@ -101,6 +101,76 @@
   margin-bottom: 16px;
 }
 
+.account-tip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 0.8rem;
+  font-weight: 550;
+  color: var(--c-text-muted);
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: help;
+  outline: none;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--c-primary);
+    background: var(--c-primary-soft);
+  }
+
+  .tip-icon {
+    font-size: 0.95rem;
+  }
+
+  .tip-tooltip {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    width: 280px;
+    max-width: 78vw;
+    background: var(--c-text);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 450;
+    line-height: 1.5;
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+    z-index: 10;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-bottom-color: var(--c-text);
+    }
+  }
+
+  &:hover .tip-tooltip,
+  &:focus-visible .tip-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

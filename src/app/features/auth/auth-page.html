@@ -83,6 +83,14 @@
       }
     } @else {
       <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form" novalidate>
+        <div class="account-tip" tabindex="0" aria-describedby="account-tip-tooltip">
+          <span class="tip-icon" aria-hidden="true">ℹ️</span>
+          <span class="tip-label">¿Para qué crear una cuenta?</span>
+          <span class="tip-tooltip" id="account-tip-tooltip" role="tooltip">
+            Al crear tu cuenta podrás hacer seguimiento a tus compras y, si tienes alguna
+            reclamación, podremos ayudarte indicando tu número de pedido.
+          </span>
+        </div>
         <div class="field-row">
           <label class="field">
             <span class="field-label">Nombre</span>
