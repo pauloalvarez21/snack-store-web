@@ -1,59 +1,82 @@
-# snack-store-web
+# 🛍️ Snack Store — Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.5.
+Frontend del sistema de venta de comestibles en línea. Aplicación **Angular 22** que consume la API [`snack-store-api`](https://github.com/pauloalvarez21/snack-store-api) (NestJS + PostgreSQL en Neon).
 
-## Development server
+## ✨ Funcionalidades
 
-To start a local development server, run:
+- **Catálogo de productos** (público): búsqueda por nombre o SKU con debounce, filtro por categorías (con subcategorías), paginación y estados de carga / vacío / error.
+- **Autenticación JWT**: registro de clientes (rol `CUSTOMER`) e inicio de sesión, con token persistido en `localStorage` e interceptor que lo adjunta a las peticiones.
+- **Carrito** del lado del cliente: drawer animado, cantidades y persistencia en `localStorage`.
+- **Checkout**: resumen del pedido, datos de entrega y confirmación. El pedido es **simulado** hasta que el backend exponga `POST /api/orders`.
+- **Modo mock**: si el backend no está disponible, se puede activar `useMockData: true` para usar datos de ejemplo en memoria (26 productos / 13 categorías).
 
-```bash
-ng serve
-```
+## 🛠️ Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| Capa | Tecnología |
+|---|---|
+| Framework | Angular 22 (standalone components, signals, control flow) |
+| RxJS | Observables y operadores |
+| Estilos | SCSS con design tokens (variables CSS) |
+| Tests | Vitest (unitario) |
+| API | `snack-store-api` en `http://localhost:3000` |
 
-## Code scaffolding
+## 🚀 Puesta en marcha
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Requisitos
 
-```bash
-ng generate component component-name
-```
+- Node.js 20+ y npm
+- Backend corriendo en `http://localhost:3000` (ver `snack-store-api`): requiere `.env` con `DATABASE_URL` y `JWT_SECRET`, aplicar `schema.sql` y, opcionalmente, sembrar datos con `node --env-file=.env scripts/seed.mjs`.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Instalación y desarrollo
 
 ```bash
-ng test
+npm install
+npm start        # servidor de desarrollo en http://localhost:4200
 ```
 
-## Running end-to-end tests
+### Configuración
 
-For end-to-end (e2e) testing, run:
+`src/environments/environment.development.ts` define `apiUrl` (backend) y `useMockData` (mock sin backend).
 
-```bash
-ng e2e
+## 🧪 Scripts
+
+| Comando | Descripción |
+|---|---|
+| `npm start` | Servidor de desarrollo (HMR) en `:4200` |
+| `npm run build` | Build de producción a `dist/` |
+| `npm test` | Tests unitarios (Vitest) |
+| `npm run watch` | Build en modo watch |
+
+## 📁 Estructura
+
+```
+src/
+  app/
+    core/        modelos, servicios, interceptores (JWT y mock), guard, datos mock
+    features/
+      catalog/   página de catálogo + tarjeta de producto
+      auth/      login / registro
+      checkout/  resumen y confirmación de pedido
+      cart/      drawer del carrito
+  environments/  environment.ts y environment.development.ts
+openapi.json     contrato de la API (raíz del proyecto)
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 🔐 Notas del contrato API
 
-## Additional Resources
+- Respuestas paginadas: `{ data, total, page, limit, totalPages }`.
+- Token de sesión: `access_token` (login y registro autentican).
+- Endpoints públicos: `GET /api/products`, `GET /api/products/:id`, `GET /api/categories`, `GET /api/categories/:id`.
+- Resto de operaciones de productos/categorías requieren rol `ADMIN`.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 🌿 Flujo de trabajo git
+
+```
+main  (producción, estable)
+  └─ develop  (integración)
+       └─ feature/*  (trabajo diario, se integra vía PR a develop)
+```
+
+## 📄 Licencia
+
+Proyecto privado.
