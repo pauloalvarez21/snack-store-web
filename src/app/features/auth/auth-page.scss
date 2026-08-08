@@ -137,8 +137,9 @@
     transform: translateX(-50%) translateY(6px);
     width: 280px;
     max-width: 78vw;
+    // Fondo = color de texto y texto = color de fondo: se invierten en modo oscuro.
     background: var(--c-text);
-    color: #fff;
+    color: var(--c-bg);
     font-size: 0.8rem;
     font-weight: 450;
     line-height: 1.5;
