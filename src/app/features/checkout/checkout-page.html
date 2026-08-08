@@ -1,0 +1,84 @@
+<section class="checkout-page">
+  @if (order()) {
+    <div class="checkout-card success">
+      <span class="success-emoji" aria-hidden="true">✅</span>
+      <h1>¡Pedido confirmado!</h1>
+      <p class="success-subtitle">
+        Tu pedido <strong>{{ order()?.id }}</strong> fue registrado correctamente. Te contactaremos para coordinar la entrega.
+      </p>
+      <div class="success-total">
+        <span>Total</span>
+        <strong>{{ formatPrice(order()?.subtotal ?? 0) }}</strong>
+      </div>
+      <a class="btn-primary" routerLink="/catalogo">Seguir comprando</a>
+      <p class="success-note">
+        Nota: la creación de pedidos en el backend estará disponible cuando el API exponga el endpoint de órdenes.
+      </p>
+    </div>
+  } @else {
+    <div class="checkout-card">
+      <header class="checkout-head">
+        <p class="checkout-eyebrow">Paso final</p>
+        <h1>Finalizar compra</h1>
+        <p>Revisa tu pedido y confirma los datos de entrega.</p>
+      </header>
+
+      <h2 class="section-title">Tu pedido</h2>
+      <ul class="order-list">
+        @for (item of cart.items(); track item.product.id) {
+          <li class="order-item">
+            <span class="item-emoji" aria-hidden="true">{{ productEmoji(item.product) }}</span>
+            <div class="item-info">
+              <p class="item-name">{{ item.product.name }}</p>
+              <p class="item-meta">× {{ item.quantity }} · {{ item.product.unit }}</p>
+            </div>
+            <span class="item-price">
+              {{ formatPrice((item.product.salePrice ?? item.product.price) * item.quantity) }}
+            </span>
+          </li>
+        }
+      </ul>
+
+      <div class="total-row">
+        <span>Total</span>
+        <strong>{{ formatPrice(cart.total()) }}</strong>
+      </div>
+
+      <h2 class="section-title">Datos de entrega</h2>
+      <form [formGroup]="deliveryForm" (ngSubmit)="confirmOrder()" class="delivery-form" novalidate>
+        <label class="field">
+          <span class="field-label">Nombre completo</span>
+          <input formControlName="customerName" type="text" placeholder="Juan Pérez" autocomplete="name" />
+          @if (errorFor(deliveryForm, 'customerName')) {
+            <span class="field-error">{{ errorFor(deliveryForm, 'customerName') }}</span>
+          }
+        </label>
+        <label class="field">
+          <span class="field-label">Teléfono</span>
+          <input formControlName="phone" type="tel" placeholder="+56912345678" autocomplete="tel" />
+          @if (errorFor(deliveryForm, 'phone')) {
+            <span class="field-error">{{ errorFor(deliveryForm, 'phone') }}</span>
+          }
+        </label>
+        <label class="field">
+          <span class="field-label">Dirección de entrega</span>
+          <input formControlName="address" type="text" placeholder="Calle, número, comuna" autocomplete="street-address" />
+          @if (errorFor(deliveryForm, 'address')) {
+            <span class="field-error">{{ errorFor(deliveryForm, 'address') }}</span>
+          }
+        </label>
+
+        <div class="checkout-actions">
+          <a class="btn-ghost" routerLink="/catalogo">Volver al catálogo</a>
+          <button
+            class="btn-primary confirm"
+            type="submit"
+            [disabled]="deliveryForm.invalid || submitting() || cart.items().length === 0"
+          >
+            {{ submitting() ? 'Procesando…' : 'Confirmar pedido' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</section>
