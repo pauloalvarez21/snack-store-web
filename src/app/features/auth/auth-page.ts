@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize, switchMap } from 'rxjs';
+import { finalize, of, switchMap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
@@ -75,7 +75,8 @@ export class AuthPage {
         phone: value.phone || undefined
       })
       .pipe(
-        switchMap(() => this.auth.login({ email: value.email!, password: value.password! })),
+        // Si el registro ya autenticó (backend real y mock), no hace falta login.
+        switchMap(() => (this.auth.isAuthenticated() ? of(null) : this.auth.login({ email: value.email!, password: value.password! }))),
         finalize(() => this.submitting.set(false))
       )
       .subscribe({

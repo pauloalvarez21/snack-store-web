@@ -18,9 +18,7 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${environment.apiUrl}/api/auth/login`, credentials).pipe(
       tap((res) => {
-        const accessToken = res.accessToken ?? res.token ?? '';
-        if (accessToken) {
-          this.setToken(accessToken);
+        if (this.captureToken(res)) {
           if (res.user) {
             this.user.set(res.user);
           } else {
@@ -31,8 +29,16 @@ export class AuthService {
     );
   }
 
-  register(payload: RegisterRequest): Observable<AuthUser> {
-    return this.http.post<AuthUser>(`${environment.apiUrl}/api/auth/register`, payload);
+  register(payload: RegisterRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/api/auth/register`, payload).pipe(
+      tap((res) => {
+        // El backend real autentica al registrar; el mock también. Si no viniera
+        // token, la UI hace login explícito después.
+        if (this.captureToken(res) && res.user) {
+          this.user.set(res.user);
+        }
+      })
+    );
   }
 
   profile(): Observable<AuthUser> {
@@ -45,6 +51,14 @@ export class AuthService {
     localStorage.removeItem(AuthService.TOKEN_KEY);
     this.token.set(null);
     this.user.set(null);
+  }
+
+  /** Extrae el token del cuerpo (soporta access_token, accessToken o token) y lo guarda. */
+  private captureToken(res: LoginResponse): boolean {
+    const accessToken = res.access_token ?? res.accessToken ?? res.token ?? '';
+    if (!accessToken) return false;
+    this.setToken(accessToken);
+    return true;
   }
 
   private refreshProfile(): void {

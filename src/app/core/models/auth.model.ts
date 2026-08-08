@@ -12,6 +12,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  access_token?: string;
   accessToken?: string;
   token?: string;
   user?: AuthUser;
@@ -20,8 +21,8 @@ export interface LoginResponse {
 export interface AuthUser {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   role: string;
 }

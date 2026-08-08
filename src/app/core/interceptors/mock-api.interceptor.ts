@@ -119,7 +119,8 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
       role: 'CUSTOMER'
     };
     mockUsers = [...mockUsers, user];
-    return of(new HttpResponse({ status: 201, body: publicUser(user) })).pipe(delay(LATENCY_MS));
+    // Igual que el backend real: el registro autentica y devuelve token + usuario.
+    return of(new HttpResponse({ status: 201, body: { access_token: createMockToken(email), user: publicUser(user) } })).pipe(delay(LATENCY_MS));
   }
 
   if (req.method === 'POST' && url === '/api/auth/login') {
