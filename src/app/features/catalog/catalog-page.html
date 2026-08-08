@@ -43,7 +43,7 @@
                 type="button"
                 [class.active]="categoryId() === cat.id"
                 [class.expanded]="selectedParent() === cat.id"
-                (click)="onParentClick(cat.id)"
+                (click)="onCategoryClick(cat.id)"
               >
                 <span class="category-emoji" aria-hidden="true">{{ categoryEmoji(cat.name) }}</span>
                 <span class="category-name">{{ cat.name }}</span>

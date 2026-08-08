@@ -71,9 +71,13 @@ export class CatalogPage {
     this.selectedParent.set(this.selectedParent() === parentId ? null : parentId);
   }
 
-  protected onParentClick(id: string): void {
-    this.toggleParent(id);
-    this.selectCategory(id);
+  protected onCategoryClick(id: string): void {
+    if (this.hasChildren(id)) {
+      // Los grupos solo expanden sus subcategorías: el API filtra por categoría exacta.
+      this.toggleParent(id);
+    } else {
+      this.selectCategory(id);
+    }
   }
 
   protected selectCategory(id: string | null): void {
