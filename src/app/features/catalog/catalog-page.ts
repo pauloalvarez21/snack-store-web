@@ -122,8 +122,8 @@ export class CatalogPage {
       .subscribe({
         next: (res) => {
           this.products.set(res.data);
-          this.total.set(res.meta.total);
-          this.page.set(res.meta.page);
+          this.total.set(res.total);
+          this.page.set(res.page);
           this.loading.set(false);
         },
         error: () => {

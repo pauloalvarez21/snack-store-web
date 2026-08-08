@@ -1,0 +1,145 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <div class="auth-head">
+      <span class="auth-logo" aria-hidden="true">🛍️</span>
+      <h1>{{ mode() === 'login' ? 'Iniciar sesión' : 'Crear cuenta' }}</h1>
+      <p>{{ mode() === 'login' ? 'Accede para finalizar tu compra.' : 'Regístrate como cliente y comienza a comprar.' }}</p>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Opciones de acceso">
+      <button
+        class="tab"
+        type="button"
+        role="tab"
+        [attr.aria-selected]="mode() === 'login'"
+        [class.active]="mode() === 'login'"
+        (click)="switchMode('login')"
+      >
+        Ingresar
+      </button>
+      <button
+        class="tab"
+        type="button"
+        role="tab"
+        [attr.aria-selected]="mode() === 'register'"
+        [class.active]="mode() === 'register'"
+        (click)="switchMode('register')"
+      >
+        Crear cuenta
+      </button>
+    </div>
+
+    @if (errorMsg()) {
+      <div class="error-banner" role="alert">{{ errorMsg() }}</div>
+    }
+
+    @if (mode() === 'login') {
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form" novalidate>
+        <label class="field">
+          <span class="field-label">Email</span>
+          <input
+            formControlName="email"
+            type="email"
+            placeholder="tucorreo@ejemplo.com"
+            autocomplete="email"
+          />
+          @if (errorFor(loginForm, 'email')) {
+            <span class="field-error">{{ errorFor(loginForm, 'email') }}</span>
+          }
+        </label>
+
+        <label class="field">
+          <span class="field-label">Contraseña</span>
+          <div class="password-wrap">
+            <input
+              formControlName="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+            <button
+              class="eye"
+              type="button"
+              (click)="showPassword.set(!showPassword())"
+              [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              {{ showPassword() ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          @if (errorFor(loginForm, 'password')) {
+            <span class="field-error">{{ errorFor(loginForm, 'password') }}</span>
+          }
+        </label>
+
+        <button class="btn-primary submit" type="submit" [disabled]="loginForm.invalid || submitting()">
+          {{ submitting() ? 'Ingresando…' : 'Ingresar' }}
+        </button>
+      </form>
+
+      @if (useMockData) {
+        <div class="demo-tip">
+          <strong>Cuenta demo:</strong> demo@snackstore.local · Demo12345!
+        </div>
+      }
+    } @else {
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form" novalidate>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Nombre</span>
+            <input formControlName="firstName" type="text" placeholder="Juan" autocomplete="given-name" />
+            @if (errorFor(registerForm, 'firstName')) {
+              <span class="field-error">{{ errorFor(registerForm, 'firstName') }}</span>
+            }
+          </label>
+          <label class="field">
+            <span class="field-label">Apellido</span>
+            <input formControlName="lastName" type="text" placeholder="Pérez" autocomplete="family-name" />
+            @if (errorFor(registerForm, 'lastName')) {
+              <span class="field-error">{{ errorFor(registerForm, 'lastName') }}</span>
+            }
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Email</span>
+          <input formControlName="email" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" />
+          @if (errorFor(registerForm, 'email')) {
+            <span class="field-error">{{ errorFor(registerForm, 'email') }}</span>
+          }
+        </label>
+
+        <label class="field">
+          <span class="field-label">Teléfono <small>(opcional)</small></span>
+          <input formControlName="phone" type="tel" placeholder="+56912345678" autocomplete="tel" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Contraseña</span>
+          <div class="password-wrap">
+            <input
+              formControlName="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              placeholder="Mínimo 8 caracteres"
+              autocomplete="new-password"
+            />
+            <button
+              class="eye"
+              type="button"
+              (click)="showPassword.set(!showPassword())"
+              [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              {{ showPassword() ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          @if (errorFor(registerForm, 'password')) {
+            <span class="field-error">{{ errorFor(registerForm, 'password') }}</span>
+          }
+        </label>
+
+        <button class="btn-primary submit" type="submit" [disabled]="registerForm.invalid || submitting()">
+          {{ submitting() ? 'Creando cuenta…' : 'Crear cuenta' }}
+        </button>
+      </form>
+    }
+  </div>
+</section>

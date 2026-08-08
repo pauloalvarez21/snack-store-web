@@ -71,6 +71,75 @@
 .header-actions {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.login-link {
+  text-decoration: none;
+  color: var(--c-primary-strong);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border: 1px solid var(--c-primary);
+  border-radius: 999px;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    background: var(--c-primary);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  padding: 4px 6px 4px 4px;
+}
+
+.user-avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.logout-btn {
+  border: none;
+  background: transparent;
+  color: var(--c-text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: #fee2e2;
+    color: var(--c-danger);
+  }
 }
 
 .cart-button {
@@ -140,5 +209,9 @@
   .app-header {
     padding: 0 14px;
     gap: 10px;
+  }
+
+  .user-name {
+    display: none;
   }
 }

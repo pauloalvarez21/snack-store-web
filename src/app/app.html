@@ -9,6 +9,15 @@
   </nav>
 
   <div class="header-actions">
+    @if (auth.isAuthenticated()) {
+      <div class="user-chip" title="Sesión iniciada">
+        <span class="user-avatar" aria-hidden="true">{{ auth.user()?.firstName?.charAt(0) ?? 'U' }}</span>
+        <span class="user-name">{{ auth.user()?.firstName }} {{ auth.user()?.lastName }}</span>
+        <button class="logout-btn" type="button" (click)="auth.logout()">Salir</button>
+      </div>
+    } @else {
+      <a routerLink="/auth" class="login-link">Ingresar</a>
+    }
     <button
       class="cart-button"
       type="button"
