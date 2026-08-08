@@ -1,1 +1,150 @@
-/* You can add global styles to this file, and also import other style files */
+/* ===== Tokens de diseño (tema) ===== */
+:root {
+  --c-primary: #16a34a;
+  --c-primary-strong: #15803d;
+  --c-primary-soft: #dcfce7;
+  --c-accent: #f59e0b;
+  --c-danger: #ef4444;
+  --c-bg: #f5f6f2;
+  --c-surface: #ffffff;
+  --c-border: #eceee8;
+  --c-border-strong: #d8dcd3;
+  --c-text: #1c1e1a;
+  --c-text-muted: #5f6570;
+  --c-text-soft: #9aa19c;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 2px 8px rgb(28 30 26 / 0.06);
+  --shadow-md: 0 8px 24px rgb(28 30 26 / 0.09);
+  --shadow-lg: 0 18px 44px rgb(28 30 26 / 0.13);
+
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji';
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+button {
+  font-family: inherit;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ===== Botones compartidos ===== */
+.btn-primary,
+.btn-secondary,
+.btn-ghost {
+  border: none;
+  font: inherit;
+  font-weight: 650;
+  font-size: 0.9rem;
+  padding: 11px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--c-primary);
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: var(--c-primary-strong);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgb(22 163 74 / 0.32);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  background: var(--c-surface);
+  color: var(--c-primary-strong);
+  border: 1px solid var(--c-primary);
+
+  &:hover {
+    background: var(--c-primary-soft);
+  }
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--c-text-muted);
+
+  &:hover {
+    background: var(--c-bg);
+    color: var(--c-text);
+  }
+}
+
+/* Barra de scroll sutil */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c-border-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--c-text-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

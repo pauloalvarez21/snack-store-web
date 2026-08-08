@@ -1,0 +1,44 @@
+<article class="product-card">
+  <div class="media">
+    @if (product().imageUrl) {
+      <img [src]="product().imageUrl" [alt]="product().name" loading="lazy" />
+    } @else {
+      <div class="media-emoji" aria-hidden="true">{{ emoji() }}</div>
+    }
+    <div class="badges">
+      @if (discount()) {
+        <span class="badge badge-sale">-{{ discount() }}%</span>
+      }
+      @if (product().isOrganic) {
+        <span class="badge badge-organic">🌱 Orgánico</span>
+      }
+    </div>
+  </div>
+
+  <div class="body">
+    <p class="category">{{ product().category?.name ?? 'General' }}</p>
+    <h3 class="name" [title]="product().name">{{ product().name }}</h3>
+    @if (product().description) {
+      <p class="description">{{ product().description }}</p>
+    }
+    <p class="unit">{{ product().sku }} · por {{ product().unit }}</p>
+
+    <div class="footer">
+      <div class="prices">
+        <span class="price">{{ price() }}</span>
+        @if (oldPrice()) {
+          <span class="old-price">{{ oldPrice() }}</span>
+        }
+      </div>
+      <button
+        class="add-btn"
+        type="button"
+        (click)="addToCart()"
+        [attr.aria-label]="'Agregar ' + product().name + ' al carrito'"
+        title="Agregar al carrito"
+      >
+        <span aria-hidden="true">+</span>
+      </button>
+    </div>
+  </div>
+</article>

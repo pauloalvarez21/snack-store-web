@@ -1,3 +1,9 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+import { CatalogPage } from './features/catalog/catalog-page';
+
+export const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'catalogo' },
+  { path: 'catalogo', component: CatalogPage },
+  { path: '**', redirectTo: 'catalogo' }
+];

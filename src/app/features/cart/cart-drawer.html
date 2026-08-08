@@ -1,0 +1,46 @@
+<div class="drawer-overlay" (click)="cart.open.set(false)"></div>
+
+<aside class="drawer" role="dialog" aria-label="Carrito de compras" aria-modal="true">
+  <header class="drawer-header">
+    <h2>Tu carrito<span class="count">{{ cart.count() }}</span></h2>
+    <button class="close" type="button" (click)="cart.open.set(false)" aria-label="Cerrar carrito">×</button>
+  </header>
+
+  @if (cart.items().length === 0) {
+    <div class="cart-empty">
+      <span class="cart-empty-emoji" aria-hidden="true">🛒</span>
+      <p>Tu carrito está vacío</p>
+      <button class="btn-primary" type="button" (click)="cart.open.set(false)">Ver catálogo</button>
+    </div>
+  } @else {
+    <ul class="cart-items">
+      @for (item of cart.items(); track item.product.id) {
+        <li class="cart-item">
+          <span class="item-emoji" aria-hidden="true">{{ productEmoji(item.product) }}</span>
+          <div class="item-info">
+            <p class="item-name">{{ item.product.name }}</p>
+            <p class="item-unit">{{ item.product.unit }} · {{ item.product.sku }}</p>
+          </div>
+          <div class="item-actions">
+            <div class="stepper">
+              <button type="button" (click)="cart.decrease(item.product.id)" aria-label="Disminuir cantidad">−</button>
+              <span>{{ item.quantity }}</span>
+              <button type="button" (click)="cart.increase(item.product.id)" aria-label="Aumentar cantidad">+</button>
+            </div>
+            <p class="item-total">{{ formatPrice((item.product.salePrice ?? item.product.price) * item.quantity) }}</p>
+            <button class="remove" type="button" (click)="cart.remove(item.product.id)" aria-label="Eliminar producto">×</button>
+          </div>
+        </li>
+      }
+    </ul>
+
+    <footer class="drawer-footer">
+      <div class="subtotal-row">
+        <span>Subtotal</span>
+        <strong>{{ formatPrice(cart.total()) }}</strong>
+      </div>
+      <button class="btn-primary checkout" type="button" disabled title="Disponible próximamente">Finalizar compra</button>
+      <button class="btn-ghost" type="button" (click)="cart.clear()">Vaciar carrito</button>
+    </footer>
+  }
+</aside>

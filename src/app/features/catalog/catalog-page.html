@@ -1,0 +1,157 @@
+<section class="catalog-page">
+  <header class="catalog-hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Tienda de comestibles en línea</p>
+      <h1>Catálogo de productos</h1>
+      <p class="hero-subtitle">Frescos, snacks y abarrotes para tu casa. Busca, filtra y arma tu pedido.</p>
+      <div class="search-box">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input
+          type="search"
+          [value]="search()"
+          (input)="onSearchInput($event)"
+          placeholder="Buscar por nombre o SKU…"
+          aria-label="Buscar productos"
+        />
+        @if (search()) {
+          <button class="search-clear" type="button" (click)="clearFilters()" aria-label="Limpiar búsqueda">×</button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <div class="catalog-layout">
+    <aside class="filters" aria-label="Filtros por categoría">
+      <h2 class="filters-title">Categorías</h2>
+      <ul class="category-list">
+        <li>
+          <button
+            class="category-item"
+            type="button"
+            [class.active]="!categoryId()"
+            (click)="clearFilters()"
+          >
+            <span class="category-emoji" aria-hidden="true">🏪</span>
+            <span class="category-name">Todas las categorías</span>
+          </button>
+        </li>
+        @for (cat of categories(); track cat.id) {
+          @if (!cat.parentId) {
+            <li>
+              <button
+                class="category-item"
+                type="button"
+                [class.active]="categoryId() === cat.id"
+                [class.expanded]="selectedParent() === cat.id"
+                (click)="onParentClick(cat.id)"
+              >
+                <span class="category-emoji" aria-hidden="true">{{ categoryEmoji(cat.name) }}</span>
+                <span class="category-name">{{ cat.name }}</span>
+                @if (hasChildren(cat.id)) {
+                  <span class="chevron" aria-hidden="true">▸</span>
+                }
+              </button>
+              @if (selectedParent() === cat.id) {
+                <ul class="subcategory-list">
+                  @for (child of childrenOf(cat.id); track child.id) {
+                    <li>
+                      <button
+                        class="category-item sub"
+                        type="button"
+                        [class.active]="categoryId() === child.id"
+                        (click)="selectCategory(child.id)"
+                      >
+                        <span class="category-emoji" aria-hidden="true">{{ categoryEmoji(child.name) }}</span>
+                        {{ child.name }}
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        }
+      </ul>
+    </aside>
+
+    <div class="results">
+      <div class="results-bar">
+        <p class="results-count">
+          @if (activeCategoryName()) {
+            <button class="filter-chip" type="button" (click)="clearFilters()" title="Quitar filtro">
+              {{ activeCategoryName() }} <span aria-hidden="true">×</span>
+            </button>
+          }
+          {{ total() }} producto{{ total() === 1 ? '' : 's' }}
+        </p>
+        @if (hasFilters()) {
+          <button class="results-clear" type="button" (click)="clearFilters()">Limpiar filtros</button>
+        }
+      </div>
+
+      @if (error()) {
+        <div class="state error-state">
+          <span class="state-emoji" aria-hidden="true">📡</span>
+          <h3>No pudimos cargar los productos</h3>
+          <p>Revisa que el servidor esté disponible e inténtalo de nuevo.</p>
+          <button class="btn-primary" type="button" (click)="loadProducts()">Reintentar</button>
+        </div>
+      } @else if (loading()) {
+        <div class="product-grid" aria-busy="true">
+          @for (placeholder of skeleton; track $index) {
+            <div class="skeleton-card" aria-hidden="true">
+              <div class="skeleton skeleton-media"></div>
+              <div class="skeleton skeleton-line w-60"></div>
+              <div class="skeleton skeleton-line w-80"></div>
+              <div class="skeleton skeleton-line w-40"></div>
+            </div>
+          }
+        </div>
+      } @else if (products().length === 0) {
+        <div class="state empty-state">
+          <span class="state-emoji" aria-hidden="true">🔍</span>
+          <h3>Sin resultados</h3>
+          <p>No encontramos productos con esos criterios. Prueba con otra búsqueda.</p>
+          <button class="btn-secondary" type="button" (click)="clearFilters()">Limpiar filtros</button>
+        </div>
+      } @else {
+        <div class="product-grid">
+          @for (product of products(); track product.id) {
+            <app-product-card [product]="product" />
+          }
+        </div>
+
+        <nav class="pagination" aria-label="Paginación">
+          <button
+            class="page-btn"
+            type="button"
+            [disabled]="page() <= 1"
+            (click)="goToPage(page() - 1)"
+          >
+            ‹ Anterior
+          </button>
+          <div class="page-numbers">
+            @for (p of pageList(); track p) {
+              <button
+                class="page-btn number"
+                type="button"
+                [class.active]="p === page()"
+                (click)="goToPage(p)"
+              >
+                {{ p }}
+              </button>
+            }
+          </div>
+          <button
+            class="page-btn"
+            type="button"
+            [disabled]="page() >= totalPages()"
+            (click)="goToPage(page() + 1)"
+          >
+            Siguiente ›
+          </button>
+        </nav>
+      }
+    </div>
+  </div>
+</section>
