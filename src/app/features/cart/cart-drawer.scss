@@ -181,7 +181,7 @@
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    color: var(--c-primary-strong);
+    color: var(--c-primary-text);
     transition: background 0.15s ease;
 
     &:hover {
@@ -219,7 +219,7 @@
     color 0.15s ease;
 
   &:hover {
-    background: #fee2e2;
+    background: var(--c-danger-soft);
     color: var(--c-danger);
   }
 }

@@ -1,8 +1,9 @@
-/* ===== Tokens de diseño (tema) ===== */
+/* ===== Tokens de diseño (tema claro) ===== */
 :root {
   --c-primary: #16a34a;
   --c-primary-strong: #15803d;
   --c-primary-soft: #dcfce7;
+  --c-primary-text: #15803d;
   --c-accent: #f59e0b;
   --c-danger: #ef4444;
   --c-bg: #f5f6f2;
@@ -12,6 +13,15 @@
   --c-text: #1c1e1a;
   --c-text-muted: #5f6570;
   --c-text-soft: #9aa19c;
+
+  --c-header-bg: rgb(255 255 255 / 0.92);
+  --c-media-grad: linear-gradient(135deg, #eefbf1 0%, #dcf3e5 100%);
+  --c-skeleton: #eef0eb;
+  --c-skeleton-shine: #f7f8f4;
+  --c-danger-soft: #fee2e2;
+  --c-error-bg: #fef2f2;
+  --c-error-border: #fecaca;
+  --c-error-text: #b91c1c;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -35,6 +45,38 @@
   color-scheme: light;
 }
 
+/* ===== Tema oscuro ===== */
+:root[data-theme='dark'] {
+  --c-primary: #16a34a;
+  --c-primary-strong: #15803d;
+  --c-primary-soft: #12271a;
+  --c-primary-text: #4ade80;
+  --c-accent: #fbbf24;
+  --c-danger: #f87171;
+  --c-bg: #12150e;
+  --c-surface: #1a1d14;
+  --c-border: #282c20;
+  --c-border-strong: #3a4030;
+  --c-text: #e9ece1;
+  --c-text-muted: #a4ab9b;
+  --c-text-soft: #7c8573;
+
+  --c-header-bg: rgb(26 29 20 / 0.9);
+  --c-media-grad: linear-gradient(135deg, #1d2819 0%, #16201a 100%);
+  --c-skeleton: #23271c;
+  --c-skeleton-shine: #2b3023;
+  --c-danger-soft: #35191a;
+  --c-error-bg: #2a1414;
+  --c-error-border: #571e1e;
+  --c-error-text: #fca5a5;
+
+  --shadow-sm: 0 2px 8px rgb(0 0 0 / 0.35);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 0.45);
+  --shadow-lg: 0 18px 44px rgb(0 0 0 / 0.55);
+
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -50,6 +92,9 @@ body {
   color: var(--c-text);
   font-size: 16px;
   line-height: 1.5;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 button {
@@ -105,7 +150,7 @@ img {
 
 .btn-secondary {
   background: var(--c-surface);
-  color: var(--c-primary-strong);
+  color: var(--c-primary-text);
   border: 1px solid var(--c-primary);
 
   &:hover {

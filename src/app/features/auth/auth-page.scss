@@ -85,15 +85,15 @@
 
   &.active {
     background: var(--c-surface);
-    color: var(--c-primary-strong);
+    color: var(--c-primary-text);
     box-shadow: var(--shadow-sm);
   }
 }
 
 .error-banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
+  background: var(--c-error-bg);
+  border: 1px solid var(--c-error-border);
+  color: var(--c-error-text);
   font-size: 0.85rem;
   font-weight: 550;
   padding: 10px 14px;

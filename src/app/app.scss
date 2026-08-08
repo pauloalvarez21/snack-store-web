@@ -13,7 +13,7 @@
   gap: 24px;
   padding: 0 24px;
   height: 64px;
-  background: rgb(255 255 255 / 0.92);
+  background: var(--c-header-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--c-border);
 }
@@ -38,7 +38,7 @@
 }
 
 .brand-accent {
-  color: var(--c-primary);
+  color: var(--c-primary-text);
 }
 
 .app-nav {
@@ -58,12 +58,12 @@
     background 0.18s ease;
 
   &:hover {
-    color: var(--c-primary-strong);
+    color: var(--c-primary-text);
     background: var(--c-primary-soft);
   }
 
   &.active {
-    color: var(--c-primary-strong);
+    color: var(--c-primary-text);
     background: var(--c-primary-soft);
   }
 }
@@ -71,7 +71,35 @@
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.theme-toggle {
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 1.05rem;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.15s ease,
+    box-shadow 0.18s ease;
+
+  &:hover {
+    background: var(--c-primary-soft);
+    border-color: var(--c-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
 }
 
 .login-link {
@@ -137,7 +165,7 @@
     color 0.15s ease;
 
   &:hover {
-    background: #fee2e2;
+    background: var(--c-danger-soft);
     color: var(--c-danger);
   }
 }
@@ -186,7 +214,7 @@
   border-radius: 999px;
   display: grid;
   place-items: center;
-  border: 2px solid #fff;
+  border: 2px solid var(--c-surface);
   opacity: 0;
   transform: scale(0.6);
   transition:

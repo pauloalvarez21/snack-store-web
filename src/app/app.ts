@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AuthService } from './core/services/auth.service';
 import { CartService } from './core/services/cart.service';
+import { ThemeService } from './core/services/theme.service';
 import { CartDrawer } from './features/cart/cart-drawer';
 
 @Component({
@@ -14,6 +15,7 @@ import { CartDrawer } from './features/cart/cart-drawer';
 export class App {
   protected readonly cart = inject(CartService);
   protected readonly auth = inject(AuthService);
+  protected readonly theme = inject(ThemeService);
 
   protected readonly userName = computed(() => {
     const user = this.auth.user();

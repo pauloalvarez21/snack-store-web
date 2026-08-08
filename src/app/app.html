@@ -9,6 +9,15 @@
   </nav>
 
   <div class="header-actions">
+    <button
+      class="theme-toggle"
+      type="button"
+      (click)="theme.toggle()"
+      [attr.aria-label]="theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+      title="Cambiar tema claro/oscuro"
+    >
+      <span aria-hidden="true">{{ theme.isDark() ? '☀️' : '🌙' }}</span>
+    </button>
     @if (auth.isAuthenticated()) {
       <div class="user-chip" title="Sesión iniciada">
         <span class="user-avatar" aria-hidden="true">{{ auth.user()?.firstName?.charAt(0) ?? 'U' }}</span>

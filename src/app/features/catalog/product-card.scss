@@ -20,7 +20,7 @@
 .media {
   position: relative;
   aspect-ratio: 4 / 3;
-  background: linear-gradient(135deg, #eefbf1 0%, #dcf3e5 100%);
+  background: var(--c-media-grad);
   display: grid;
   place-items: center;
 
@@ -69,7 +69,7 @@
 
 .badge-organic {
   background: var(--c-primary-soft);
-  color: var(--c-primary-strong);
+  color: var(--c-primary-text);
 }
 
 .body {
@@ -86,7 +86,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--c-primary);
+  color: var(--c-primary-text);
 }
 
 .name {
