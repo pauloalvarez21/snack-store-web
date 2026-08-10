@@ -6,7 +6,13 @@
     <button class="close" type="button" (click)="cart.open.set(false)" aria-label="Cerrar carrito">×</button>
   </header>
 
-  @if (cart.items().length === 0) {
+  @if (!auth.isAuthenticated()) {
+    <div class="cart-empty">
+      <span class="cart-empty-emoji" aria-hidden="true">🔒</span>
+      <p>Inicia sesión para ver tu carrito</p>
+      <button class="btn-primary" type="button" (click)="goLogin()">Iniciar sesión</button>
+    </div>
+  } @else if (cart.items().length === 0) {
     <div class="cart-empty">
       <span class="cart-empty-emoji" aria-hidden="true">🛒</span>
       <p>Tu carrito está vacío</p>
@@ -40,9 +46,6 @@
         <strong>{{ formatPrice(cart.total()) }}</strong>
       </div>
       <button class="btn-primary checkout" type="button" (click)="checkout()">Finalizar compra</button>
-      @if (!auth.isAuthenticated()) {
-        <p class="auth-hint">🔒 Inicia sesión para completar tu pedido</p>
-      }
       <button class="btn-ghost" type="button" (click)="cart.clear()">Vaciar carrito</button>
     </footer>
   }

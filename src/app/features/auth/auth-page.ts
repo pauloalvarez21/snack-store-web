@@ -3,8 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize, of, switchMap } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
+import { CartService } from '../../core/services/cart.service';
+import { fieldError } from '../../core/utils/validation';
 
 @Component({
   selector: 'app-auth-page',
@@ -14,10 +15,10 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class AuthPage {
   private readonly auth = inject(AuthService);
+  private readonly cart = inject(CartService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  protected readonly useMockData = environment.useMockData;
   protected readonly mode = signal<'login' | 'register'>('login');
   protected readonly submitting = signal(false);
   protected readonly errorMsg = signal<string | null>(null);
@@ -75,7 +76,7 @@ export class AuthPage {
         phone: value.phone || undefined
       })
       .pipe(
-        // Si el registro ya autenticó (backend real y mock), no hace falta login.
+        // Si el registro ya autenticó, no hace falta login.
         switchMap(() => (this.auth.isAuthenticated() ? of(null) : this.auth.login({ email: value.email!, password: value.password! }))),
         finalize(() => this.submitting.set(false))
       )
@@ -86,12 +87,7 @@ export class AuthPage {
   }
 
   protected errorFor(form: FormGroup, field: string): string | null {
-    const control = form.get(field);
-    if (!control?.errors || (!control.touched && !control.dirty)) return null;
-    if (control.errors['required']) return 'Este campo es obligatorio.';
-    if (control.errors['email']) return 'Ingresa un email válido.';
-    if (control.errors['minlength']) return `Mínimo ${control.errors['minlength'].requiredLength} caracteres.`;
-    return null;
+    return fieldError(form.get(field));
   }
 
   private registerError(err: unknown): string {
@@ -101,6 +97,8 @@ export class AuthPage {
   }
 
   private redirectAfterAuth(): void {
+    // Al autenticarse, el carrito pasa a ser el del servidor: lo recargamos.
+    this.cart.refresh();
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/catalogo';
     this.router.navigateByUrl(returnUrl);
   }

@@ -43,4 +43,11 @@ export class ProductsService {
   remove(id: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/api/products/${id}`);
   }
+
+  /** Sube una imagen y devuelve la URL pública (solo ADMIN). */
+  uploadImage(file: File): Observable<{ imageUrl: string }> {
+    const form = new FormData();
+    form.append('image', file, file.name);
+    return this.http.post<{ imageUrl: string }>(`${environment.apiUrl}/api/uploads/images`, form);
+  }
 }

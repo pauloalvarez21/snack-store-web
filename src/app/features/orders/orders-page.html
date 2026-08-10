@@ -1,0 +1,196 @@
+<section class="orders-page">
+  <header class="orders-hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Repartidor</p>
+      <h1>Gestión de pedidos</h1>
+      <p class="hero-subtitle">Revisa los pedidos, ponlos en ruta y confirma las entregas.</p>
+    </div>
+  </header>
+
+  <div class="orders-layout">
+    <div class="tabs" role="tablist" aria-label="Secciones del panel">
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.active]="tab() === 'orders'"
+        [attr.aria-selected]="tab() === 'orders'"
+        (click)="switchTab('orders')"
+      >
+        Pedidos
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.active]="tab() === 'deliveries'"
+        [attr.aria-selected]="tab() === 'deliveries'"
+        (click)="switchTab('deliveries')"
+      >
+        Mis entregas
+      </button>
+    </div>
+
+    @if (actionError()) {
+      <p class="action-error" role="alert">{{ actionError() }}</p>
+    }
+
+    @if (tab() === 'orders') {
+      <app-order-filter-chips
+        [options]="statusFilters"
+        [active]="statusFilter()"
+        label="Filtrar por estado"
+        (select)="selectStatus($event)"
+      />
+
+      @if (ordersError()) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">😵</span>
+          <h3>No pudimos cargar los pedidos</h3>
+          <p>{{ ordersErrorMessage() }}</p>
+          <button class="btn-secondary" type="button" (click)="loadOrders()">Reintentar</button>
+        </div>
+      } @else if (ordersLoading()) {
+        <app-order-skeleton [count]="5" />
+      } @else if (orders().length === 0) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">📭</span>
+          <h3>No hay pedidos aquí</h3>
+          <p>No hay pedidos con el estado seleccionado.</p>
+        </div>
+      } @else {
+        <div class="orders-list">
+          @for (order of orders(); track order.id) {
+            <app-order-card
+              [order]="order"
+              [expanded]="expandedId() === order.id"
+              [showCustomer]="true"
+              (toggle)="toggleDetail(order.id)"
+            >
+              @if (canMarkEnRoute(order) || canConfirmDelivery(order) || (isAdmin() && (canConfirmPayment(order) || canMarkPreparing(order) || canCancel(order)))) {
+                <div cardFooter class="order-actions">
+                  @if (canMarkEnRoute(order)) {
+                    <button
+                      class="btn-secondary"
+                      type="button"
+                      [disabled]="acting() === order.id"
+                      (click)="markEnRoute(order)"
+                    >
+                      {{ acting() === order.id ? 'Procesando…' : '🚚 Marcar en camino' }}
+                    </button>
+                  }
+                  @if (canConfirmDelivery(order)) {
+                    <button
+                      class="btn-primary"
+                      type="button"
+                      [disabled]="acting() === order.id"
+                      (click)="confirmDelivery(order)"
+                    >
+                      {{ acting() === order.id ? 'Procesando…' : '✅ Confirmar entrega' }}
+                    </button>
+                  }
+                  @if (isAdmin() && canConfirmPayment(order)) {
+                    <button
+                      class="btn-secondary"
+                      type="button"
+                      [disabled]="acting() === order.id"
+                      (click)="confirmPayment(order)"
+                    >
+                      {{ acting() === order.id ? 'Procesando…' : '💳 Confirmar pago' }}
+                    </button>
+                  }
+                  @if (isAdmin() && canMarkPreparing(order)) {
+                    <button
+                      class="btn-secondary"
+                      type="button"
+                      [disabled]="acting() === order.id"
+                      (click)="markPreparing(order)"
+                    >
+                      {{ acting() === order.id ? 'Procesando…' : '👨‍🍳 Marcar en preparación' }}
+                    </button>
+                  }
+                  @if (isAdmin() && canCancel(order)) {
+                    <button
+                      class="btn-cancel"
+                      type="button"
+                      [disabled]="acting() === order.id"
+                      (click)="cancelOrder(order)"
+                    >
+                      {{ acting() === order.id ? 'Procesando…' : '✕ Cancelar pedido' }}
+                    </button>
+                  }
+                </div>
+              }
+            </app-order-card>
+          }
+        </div>
+
+        <app-order-pagination
+          [page]="ordersPage()"
+          [totalPages]="ordersTotalPages()"
+          label="Paginación de pedidos"
+          (pageChange)="goToOrdersPage($event)"
+        />
+      }
+    }
+
+    @if (tab() === 'deliveries') {
+      @if (deliveriesSummary(); as summary) {
+        <div class="summary-grid">
+          <div class="summary-card">
+            <span class="sc-value">{{ summary.todayDelivered }}</span>
+            <span class="sc-label">Entregas de hoy</span>
+          </div>
+          <div class="summary-card">
+            <span class="sc-value">{{ formatPrice(summary.todayAmount) }}</span>
+            <span class="sc-label">Cobrado hoy</span>
+          </div>
+          <div class="summary-card">
+            <span class="sc-value">{{ summary.totalDelivered }}</span>
+            <span class="sc-label">Total entregado</span>
+          </div>
+          <div class="summary-card">
+            <span class="sc-value">{{ formatPrice(summary.totalAmount) }}</span>
+            <span class="sc-label">Monto cobrado</span>
+          </div>
+        </div>
+      }
+
+      @if (deliveriesError()) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">😵</span>
+          <h3>No pudimos cargar tus entregas</h3>
+          <p>{{ deliveriesErrorMessage() }}</p>
+          <button class="btn-secondary" type="button" (click)="loadDeliveries()">Reintentar</button>
+        </div>
+      } @else if (deliveriesLoading()) {
+        <app-order-skeleton [count]="5" />
+      } @else if (deliveries().length === 0) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">🛵</span>
+          <h3>Aún no tienes entregas</h3>
+          <p>Cuando confirmes una entrega, aparecerá en tu historial.</p>
+        </div>
+      } @else {
+        <div class="orders-list">
+          @for (order of deliveries(); track order.id) {
+            <article class="delivery-row">
+              <span class="oh-number">#{{ order.orderNumber }}</span>
+              <app-order-status-badge [status]="order.status" />
+              <span class="oh-customer">{{ order.user?.firstName }} {{ order.user?.lastName }}</span>
+              <span class="oh-date">{{ formatDateTime(order.updatedAt) }}</span>
+              <span class="oh-total">{{ formatPrice(order.total) }}</span>
+            </article>
+          }
+        </div>
+
+        <app-order-pagination
+          [page]="deliveriesPage()"
+          [totalPages]="deliveriesTotalPages()"
+          label="Paginación de entregas"
+          (pageChange)="goToDeliveriesPage($event)"
+        />
+      }
+    }
+  </div>
+</section>

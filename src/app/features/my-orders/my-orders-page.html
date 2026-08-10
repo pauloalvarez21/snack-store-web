@@ -1,0 +1,96 @@
+<section class="my-orders">
+  <header class="orders-hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Mi cuenta</p>
+      <h1>Mis pedidos</h1>
+      <p class="hero-subtitle">Sigue el estado de tus compras, revisa el detalle y cancela los que aún estén a tiempo.</p>
+    </div>
+  </header>
+
+  <div class="orders-layout">
+    <app-order-filter-chips
+      [options]="statusFilters"
+      [active]="statusFilter()"
+      label="Filtrar por estado"
+      (select)="selectStatus($event)"
+    />
+
+    @if (actionError()) {
+      <p class="action-error" role="alert">{{ actionError() }}</p>
+    }
+
+    @if (error()) {
+      <div class="state">
+        <span class="state-emoji" aria-hidden="true">😵</span>
+        <h3>No pudimos cargar tus pedidos</h3>
+        <p>{{ errorMessage() }}</p>
+        <button class="btn-secondary" type="button" (click)="load()">Reintentar</button>
+      </div>
+    } @else if (loading()) {
+      <app-order-skeleton />
+    } @else if (orders().length === 0) {
+      <div class="state">
+        <span class="state-emoji" aria-hidden="true">📭</span>
+        <h3>Aún no tienes pedidos</h3>
+        <p>Cuando hagas tu primera compra, aparecerá aquí con su seguimiento.</p>
+        <a class="btn-primary" routerLink="/catalogo">Ir al catálogo</a>
+      </div>
+    } @else {
+      <div class="orders-list">
+        @for (order of orders(); track order.id) {
+          <app-order-card
+            [order]="order"
+            [expanded]="expandedId() === order.id"
+            (toggle)="toggleDetail(order.id)"
+          >
+            <ol cardTop class="timeline" aria-label="Progreso del pedido">
+              @for (step of progressSteps; track step.value) {
+                <li
+                  class="timeline-step"
+                  [class.done]="stepDone(order, step.value)"
+                  [class.current]="order.status === step.value"
+                  [class.cancelled]="order.status === 'CANCELLED'"
+                >
+                  <span class="tl-dot" aria-hidden="true"></span>
+                  <span class="tl-label">{{ step.label }}</span>
+                </li>
+              }
+            </ol>
+
+            @if (canReorder(order) || canCancel(order)) {
+              <div cardFooter class="order-actions">
+                @if (canReorder(order)) {
+                  <button
+                    class="btn-secondary"
+                    type="button"
+                    [disabled]="reordering() === order.id || cancelling() === order.id"
+                    (click)="reorder(order)"
+                  >
+                    {{ reordering() === order.id ? 'Agregando…' : '🔄 Comprar de nuevo' }}
+                  </button>
+                }
+                @if (canCancel(order)) {
+                  <button
+                    class="btn-cancel"
+                    type="button"
+                    [disabled]="cancelling() === order.id || reordering() === order.id"
+                    (click)="cancelOrder(order)"
+                  >
+                    {{ cancelling() === order.id ? 'Cancelando…' : '✕ Cancelar pedido' }}
+                  </button>
+                }
+              </div>
+            }
+          </app-order-card>
+        }
+      </div>
+
+      <app-order-pagination
+        [page]="ordersPage()"
+        [totalPages]="totalPages()"
+        label="Paginación de pedidos"
+        (pageChange)="goToPage($event)"
+      />
+    }
+  </div>
+</section>

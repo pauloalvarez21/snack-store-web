@@ -1,23 +1,95 @@
-import { Product } from './product.model';
+import { Paginated } from './paginated.model';
 
-export interface DeliveryInfo {
-  customerName: string;
-  phone: string;
-  address: string;
+export type OrderStatus =
+  | 'PENDING'
+  | 'PAID'
+  | 'PREPARING'
+  | 'OUT_FOR_DELIVERY'
+  | 'DELIVERED'
+  | 'CANCELLED';
+
+export type PaymentMethod =
+  | 'CREDIT_CARD'
+  | 'DEBIT_CARD'
+  | 'CASH_ON_DELIVERY'
+  | 'TRANSFER';
+
+export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+
+export interface OrderQuery {
+  page?: number;
+  limit?: number;
+  status?: OrderStatus;
+}
+
+export interface CreateOrderDto {
+  addressId?: string;
+  deliverySlotStart?: string;
+  deliverySlotEnd?: string;
+  paymentMethod: PaymentMethod;
 }
 
 export interface OrderItem {
-  product: Product;
+  productId: string | null;
+  productName: string;
+  unitPrice: number;
   quantity: number;
+  subtotal: number;
+}
+
+export interface OrderPayment {
+  id: string;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  transactionId: string | null;
+  amount: number;
+}
+
+export interface OrderShippingAddress {
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  stateProvince: string | null;
+  postalCode: string | null;
+  deliveryNotes: string | null;
+}
+
+export interface OrderUserRef {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface Order {
   id: string;
-  items: OrderItem[];
+  orderNumber: number;
+  userId: string;
+  user: OrderUserRef | null;
+  /** Repartidor que confirmó la entrega (null hasta DELIVERED). */
+  deliveredBy: OrderUserRef | null;
+  status: OrderStatus;
   subtotal: number;
-  customerName: string;
-  phone: string;
-  address: string;
-  status: 'pending';
+  deliveryFee: number;
+  total: number;
+  deliverySlotStart: string | null;
+  deliverySlotEnd: string | null;
+  /** Snapshot inmutable de la dirección al momento de la compra. */
+  shippingAddress: OrderShippingAddress | null;
+  items: OrderItem[];
+  payment: OrderPayment | null;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface DeliveriesSummary {
+  totalDelivered: number;
+  totalAmount: number;
+  todayDelivered: number;
+  todayAmount: number;
+}
+
+/** Respuesta de GET /api/orders/deliveries/me (historial + resumen). */
+export interface DeliveriesReport extends Paginated<Order> {
+  summary: DeliveriesSummary;
 }

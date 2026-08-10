@@ -168,6 +168,32 @@ img {
   }
 }
 
+.btn-cancel {
+  border: 1px solid var(--c-danger);
+  background: transparent;
+  color: var(--c-danger);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 650;
+  padding: 9px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--c-danger);
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
 /* Barra de scroll sutil */
 ::-webkit-scrollbar {
   width: 10px;

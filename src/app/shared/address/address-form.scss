@@ -1,0 +1,99 @@
+.address-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px dashed var(--c-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--c-surface);
+  animation: address-form-in 0.22s ease;
+}
+
+@keyframes address-form-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.address-form-title {
+  margin: 0 0 2px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-text-soft);
+}
+
+.form-error {
+  margin: 0;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+
+  input {
+    width: 100%;
+    min-width: 0;
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 10px 12px;
+    border: 1px solid var(--c-border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--c-bg);
+    color: var(--c-text);
+    outline: none;
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
+
+    &:focus {
+      border-color: var(--c-primary);
+      box-shadow: 0 0 0 3px rgb(22 163 74 / 0.15);
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: var(--c-danger);
+    }
+  }
+}
+
+.field-label {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--c-text);
+}
+
+.field-error {
+  font-size: 0.76rem;
+  color: var(--c-danger);
+  font-weight: 550;
+}
+
+.address-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 560px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}

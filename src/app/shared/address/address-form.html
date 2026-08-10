@@ -1,0 +1,48 @@
+<form id="address-form" class="address-form" [formGroup]="addressForm" (ngSubmit)="save()" novalidate>
+  <h3 class="address-form-title">{{ editing() ? 'Editar dirección' : 'Nueva dirección' }}</h3>
+
+  @if (errorMsg()) {
+    <p class="field-error form-error" role="alert">{{ errorMsg() }}</p>
+  }
+
+  <label class="field">
+    <span class="field-label">Calle y número *</span>
+    <input formControlName="addressLine1" type="text" placeholder="Av. Providencia 1234, Depto 501" autocomplete="street-address" />
+    @if (errorFor('addressLine1')) {
+      <span class="field-error">{{ errorFor('addressLine1') }}</span>
+    }
+  </label>
+
+  <label class="field">
+    <span class="field-label">Departamento / torre (opcional)</span>
+    <input formControlName="addressLine2" type="text" placeholder="Torre B, Depto 501" />
+  </label>
+
+  <div class="field-row">
+    <label class="field">
+      <span class="field-label">Ciudad *</span>
+      <input formControlName="city" type="text" placeholder="Santiago" />
+      @if (errorFor('city')) {
+        <span class="field-error">{{ errorFor('city') }}</span>
+      }
+    </label>
+    <label class="field">
+      <span class="field-label">Región</span>
+      <input formControlName="stateProvince" type="text" placeholder="Región Metropolitana" />
+    </label>
+  </div>
+
+  <label class="field">
+    <span class="field-label">Notas de entrega (opcional)</span>
+    <input formControlName="deliveryNotes" type="text" placeholder="Llamar al llegar" />
+  </label>
+
+  <div class="address-form-actions">
+    @if (showCancel()) {
+      <button class="btn-ghost" type="button" (click)="cancelForm()">Cancelar</button>
+    }
+    <button [class]="submitClass()" type="submit" [disabled]="addressForm.invalid || saving()">
+      {{ saving() ? 'Guardando…' : (editing() ? 'Guardar cambios' : 'Guardar dirección') }}
+    </button>
+  </div>
+</form>

@@ -4,23 +4,48 @@
       <span class="success-emoji" aria-hidden="true">✅</span>
       <h1>¡Pedido confirmado!</h1>
       <p class="success-subtitle">
-        Tu pedido <strong>{{ order()?.id }}</strong> fue registrado correctamente. Te contactaremos para coordinar la entrega.
+        Tu pedido <strong>#{{ order()?.orderNumber }}</strong> fue registrado correctamente.
+        {{ orderStatusLabel(order()?.status ?? 'PENDING') }}.
       </p>
+
+      <ul class="success-items">
+        @for (item of order()?.items; track $index) {
+          <li>
+            <span>{{ item.productName }}</span>
+            <span>× {{ item.quantity }}</span>
+          </li>
+        }
+      </ul>
+
+      @if (order()?.shippingAddress; as address) {
+        <p class="success-address">
+          📍 {{ address.addressLine1 }}@if (address.addressLine2) {, {{ address.addressLine2 }} } · {{ address.city }}
+        </p>
+      }
+
       <div class="success-total">
-        <span>Total</span>
-        <strong>{{ formatPrice(order()?.subtotal ?? 0) }}</strong>
+        <span>Total ({{ paymentLabel(order()?.payment?.method ?? 'TRANSFER') }})</span>
+        <strong>{{ formatPrice(order()?.total ?? 0) }}</strong>
       </div>
+
+      @if (order()?.payment?.method === 'TRANSFER') {
+        <p class="success-note">
+          Te contactaremos con los datos de la transferencia para confirmar el pago.
+        </p>
+      } @else if (order()?.payment?.method === 'CASH_ON_DELIVERY') {
+        <p class="success-note">
+          Ten el monto exacto listo para pagar al recibir tu pedido.
+        </p>
+      }
+
       <a class="btn-primary" routerLink="/catalogo">Seguir comprando</a>
-      <p class="success-note">
-        Nota: la creación de pedidos en el backend estará disponible cuando el API exponga el endpoint de órdenes.
-      </p>
     </div>
   } @else {
     <div class="checkout-card">
       <header class="checkout-head">
         <p class="checkout-eyebrow">Paso final</p>
         <h1>Finalizar compra</h1>
-        <p>Revisa tu pedido y confirma los datos de entrega.</p>
+        <p>Revisa tu pedido, elige la dirección de entrega y el método de pago.</p>
       </header>
 
       <h2 class="section-title">Tu pedido</h2>
@@ -44,41 +69,116 @@
         <strong>{{ formatPrice(cart.total()) }}</strong>
       </div>
 
-      <h2 class="section-title">Datos de entrega</h2>
-      <form [formGroup]="deliveryForm" (ngSubmit)="confirmOrder()" class="delivery-form" novalidate>
-        <label class="field">
-          <span class="field-label">Nombre completo</span>
-          <input formControlName="customerName" type="text" placeholder="Juan Pérez" autocomplete="name" />
-          @if (errorFor(deliveryForm, 'customerName')) {
-            <span class="field-error">{{ errorFor(deliveryForm, 'customerName') }}</span>
-          }
-        </label>
-        <label class="field">
-          <span class="field-label">Teléfono</span>
-          <input formControlName="phone" type="tel" placeholder="+56912345678" autocomplete="tel" />
-          @if (errorFor(deliveryForm, 'phone')) {
-            <span class="field-error">{{ errorFor(deliveryForm, 'phone') }}</span>
-          }
-        </label>
-        <label class="field">
-          <span class="field-label">Dirección de entrega</span>
-          <input formControlName="address" type="text" placeholder="Calle, número, comuna" autocomplete="street-address" />
-          @if (errorFor(deliveryForm, 'address')) {
-            <span class="field-error">{{ errorFor(deliveryForm, 'address') }}</span>
-          }
-        </label>
-
-        <div class="checkout-actions">
-          <a class="btn-ghost" routerLink="/catalogo">Volver al catálogo</a>
-          <button
-            class="btn-primary confirm"
-            type="submit"
-            [disabled]="deliveryForm.invalid || submitting() || cart.items().length === 0"
-          >
-            {{ submitting() ? 'Procesando…' : 'Confirmar pedido' }}
-          </button>
+      <h2 class="section-title">Dirección de entrega</h2>
+      @if (addressesLoading()) {
+        <p class="delivery-note">Cargando tus direcciones…</p>
+      } @else if (addressesError()) {
+        <div class="address-error-box">
+          <p class="order-error">No pudimos cargar tus direcciones.</p>
+          <button class="btn-ghost" type="button" (click)="loadAddresses()">Reintentar</button>
         </div>
-      </form>
+      } @else {
+        @if (addresses().length > 0) {
+          <div class="address-list" role="radiogroup" aria-label="Dirección de entrega">
+            @for (address of addresses(); track address.id) {
+              <div class="address-card" [class.selected]="selectedAddressId() === address.id">
+                <label class="address-select">
+                  <input
+                    type="radio"
+                    name="address"
+                    [value]="address.id"
+                    [checked]="selectedAddressId() === address.id"
+                    (change)="selectAddress(address.id)"
+                  />
+                  <span class="address-body">
+                    <span class="address-line1">
+                      {{ address.addressLine1 }}@if (address.addressLine2) {, {{ address.addressLine2 }} }
+                      @if (address.isDefault) {
+                        <span class="address-default">Principal</span>
+                      }
+                    </span>
+                    <span class="address-city">
+                      {{ address.city }}@if (address.stateProvince) {, {{ address.stateProvince }} }
+                    </span>
+                    @if (address.deliveryNotes) {
+                      <span class="address-notes">📝 {{ address.deliveryNotes }}</span>
+                    }
+                  </span>
+                </label>
+                <div class="address-actions">
+                  <button class="mini-btn" type="button" (click)="startEdit(address)">Editar</button>
+                  <button class="mini-btn danger" type="button" (click)="removeAddress(address)">Eliminar</button>
+                </div>
+              </div>
+            }
+          </div>
+          <button class="btn-ghost add-address" type="button" (click)="toggleAddressForm()">
+            {{ showAddressForm() ? 'Cancelar' : '+ Agregar otra dirección' }}
+          </button>
+        } @else {
+          <p class="delivery-note">Aún no tienes direcciones guardadas. Agrega la primera para continuar:</p>
+        }
+
+        @if (addressError()) {
+          <p class="field-error address-error" role="alert">{{ addressError() }}</p>
+        }
+
+        @if (editingAddressId() || showAddressForm() || addresses().length === 0) {
+          <app-address-form
+            [editing]="editingAddress()"
+            [showCancel]="editingAddressId() !== null || addresses().length > 0"
+            [submitClass]="'btn-secondary'"
+            (saved)="onAddressSaved($event)"
+            (cancel)="cancelAddressForm()"
+          />
+        }
+      }
+
+      <h2 class="section-title">Método de pago</h2>
+      <div class="payment-options" role="radiogroup" aria-label="Método de pago">
+        @for (opt of paymentOptions; track opt.value) {
+          <label class="payment-option" [class.selected]="paymentMethod() === opt.value">
+            <input
+              type="radio"
+              name="paymentMethod"
+              [value]="opt.value"
+              [checked]="paymentMethod() === opt.value"
+              (change)="paymentMethod.set(opt.value)"
+            />
+            <span class="payment-icon" aria-hidden="true">{{ opt.icon }}</span>
+            <span class="payment-info">
+              <span class="payment-label">{{ opt.label }}</span>
+              <span class="payment-note">{{ opt.note }}</span>
+            </span>
+            <span class="payment-check" aria-hidden="true">✓</span>
+          </label>
+        }
+      </div>
+
+      <h2 class="section-title">Contacto</h2>
+      <div class="delivery-contact">
+        <span class="dc-icon" aria-hidden="true">📦</span>
+        <div class="dc-info">
+          <p class="dc-name">{{ auth.user()?.firstName }} {{ auth.user()?.lastName }}</p>
+          <p class="dc-phone">{{ auth.user()?.phone ?? 'Sin teléfono registrado' }}</p>
+        </div>
+      </div>
+
+      @if (errorMsg()) {
+        <p class="order-error" role="alert">{{ errorMsg() }}</p>
+      }
+
+      <div class="checkout-actions">
+        <button class="btn-ghost" type="button" (click)="goBack()">Volver al catálogo</button>
+        <button
+          class="btn-primary confirm"
+          type="button"
+          [disabled]="submitting() || cart.items().length === 0 || !selectedAddressId()"
+          (click)="confirmOrder()"
+        >
+          {{ submitting() ? 'Procesando…' : 'Confirmar pedido' }}
+        </button>
+      </div>
     </div>
   }
 </section>

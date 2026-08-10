@@ -1,0 +1,34 @@
+.filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 16px;
+}
+
+.status-chip {
+  border: 1px solid var(--c-border-strong);
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    border-color: var(--c-primary);
+    color: var(--c-primary-text);
+  }
+
+  &.active {
+    background: var(--c-primary);
+    border-color: var(--c-primary);
+    color: #fff;
+  }
+}

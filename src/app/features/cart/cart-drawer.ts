@@ -27,4 +27,10 @@ export class CartDrawer {
       this.router.navigate(['/auth'], { queryParams: { returnUrl: '/checkout' } });
     }
   }
+
+  /** El carrito es del servidor: los invitados deben iniciar sesión para verlo. */
+  protected goLogin(): void {
+    this.cart.open.set(false);
+    this.router.navigate(['/auth'], { queryParams: { returnUrl: this.router.url } });
+  }
 }

@@ -1,0 +1,86 @@
+<article class="order-card" [class.expanded]="expanded()">
+  <button
+    type="button"
+    class="order-head"
+    (click)="toggle.emit()"
+    [attr.aria-expanded]="expanded()"
+  >
+    <span class="oh-number">#{{ order().orderNumber }}</span>
+    <app-order-status-badge [status]="order().status" />
+    @if (showCustomer()) {
+      <span class="oh-customer">{{ order().user?.firstName }} {{ order().user?.lastName }}</span>
+    }
+    <span class="oh-date" [class.grow]="!showCustomer()">{{ formatDateTime(order().createdAt) }}</span>
+    <span class="oh-total">{{ formatPrice(order().total) }}</span>
+    <span class="oh-chevron" aria-hidden="true">▾</span>
+  </button>
+
+  @if (expanded()) {
+    <div class="order-detail">
+      <ng-content select="[cardTop]" />
+
+      <div class="detail-grid">
+        <div class="detail-block">
+          <h4>Productos</h4>
+          <ul class="detail-items">
+            @for (item of order().items; track $index) {
+              <li>
+                <span class="di-name">{{ item.productName }}</span>
+                <span class="di-qty">× {{ item.quantity }}</span>
+                <span class="di-price">{{ formatPrice(item.subtotal) }}</span>
+              </li>
+            }
+          </ul>
+          <p class="detail-total">
+            Subtotal: <strong>{{ formatPrice(order().subtotal) }}</strong> · Envío:
+            <strong>{{ formatPrice(order().deliveryFee) }}</strong>
+          </p>
+          <p class="detail-grand">
+            Total: <strong>{{ formatPrice(order().total) }}</strong>
+          </p>
+        </div>
+
+        <div class="detail-block">
+          <h4>Entrega</h4>
+          @if (order().shippingAddress; as address) {
+            <p class="address">
+              {{ address.addressLine1 }}@if (address.addressLine2) {, {{ address.addressLine2 }} }
+              <br />
+              {{ address.city }}@if (address.stateProvince) {, {{ address.stateProvince }} }
+            </p>
+            @if (address.deliveryNotes) {
+              <p class="muted">📝 {{ address.deliveryNotes }}</p>
+            }
+          } @else {
+            <p class="muted">Sin dirección registrada</p>
+          }
+          @if (order().deliverySlotStart; as start) {
+            @if (order().deliverySlotEnd; as end) {
+              <p class="muted">Franja: {{ formatDateTime(start) }} – {{ formatDateTime(end) }}</p>
+            }
+          }
+        </div>
+
+        <div class="detail-block">
+          <h4>Pago</h4>
+          @if (order().payment; as payment) {
+            <p>{{ paymentMethodLabel(payment.method) }}</p>
+            <p class="muted">{{ paymentStatusLabel(payment) }}</p>
+            @if (payment.transactionId) {
+              <p class="muted">Ref: {{ payment.transactionId }}</p>
+            }
+          } @else {
+            <p class="muted">Sin pago registrado</p>
+          }
+          @if (order().deliveredBy; as deliveredBy) {
+            <p class="delivered-by">
+              ✅ Entregado por {{ deliveredBy.firstName }} {{ deliveredBy.lastName }}
+            </p>
+          }
+        </div>
+      </div>
+
+      <ng-content select="[cardFooter]" />
+    </div>
+  }
+</article>

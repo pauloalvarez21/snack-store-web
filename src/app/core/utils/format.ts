@@ -1,3 +1,4 @@
+import { OrderStatus, PaymentMethod } from '../models/order.model';
 import { Product } from '../models/product.model';
 
 /** Formatea un precio numérico como moneda (p. ej. "$2.50"). */
@@ -42,6 +43,44 @@ export function productEmoji(product: Product): string {
   if (/(lenteja|legumbre|poroto)/.test(n)) return '🫘';
   if (/(at[uú]n|conserva|enlatado)/.test(n)) return '🐟';
   return '🛒';
+}
+
+const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  CREDIT_CARD: 'Tarjeta de crédito',
+  DEBIT_CARD: 'Tarjeta de débito',
+  CASH_ON_DELIVERY: 'Contra entrega',
+  TRANSFER: 'Transferencia bancaria'
+};
+
+/** Etiqueta legible de un método de pago. */
+export function paymentMethodLabel(method: PaymentMethod): string {
+  return PAYMENT_METHOD_LABELS[method] ?? method;
+}
+
+const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  PENDING: 'Pendiente',
+  PAID: 'Pagado',
+  PREPARING: 'En preparación',
+  OUT_FOR_DELIVERY: 'En ruta',
+  DELIVERED: 'Entregado',
+  CANCELLED: 'Cancelado'
+};
+
+/** Etiqueta legible de un estado de pedido. */
+export function orderStatusLabel(status: OrderStatus): string {
+  return ORDER_STATUS_LABELS[status] ?? status;
+}
+
+/** Fecha/hora corta local (p. ej. "10 ago, 14:30"). */
+export function formatDateTime(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return date.toLocaleString('es-CL', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 
 /** Emoji para una categoría según su nombre. */

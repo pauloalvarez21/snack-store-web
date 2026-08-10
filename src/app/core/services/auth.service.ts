@@ -32,8 +32,8 @@ export class AuthService {
   register(payload: RegisterRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${environment.apiUrl}/api/auth/register`, payload).pipe(
       tap((res) => {
-        // El backend real autentica al registrar; el mock también. Si no viniera
-        // token, la UI hace login explícito después.
+        // El backend autentica al registrar. Si no viniera token,
+        // la UI hace login explícito después.
         if (this.captureToken(res) && res.user) {
           this.user.set(res.user);
         }

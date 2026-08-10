@@ -75,12 +75,6 @@
           {{ submitting() ? 'Ingresando…' : 'Ingresar' }}
         </button>
       </form>
-
-      @if (useMockData) {
-        <div class="demo-tip">
-          <strong>Cuenta demo:</strong> demo@snackstore.local · Demo12345!
-        </div>
-      }
     } @else {
       <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form" novalidate>
         <div class="account-tip" tabindex="0" aria-describedby="account-tip-tooltip">

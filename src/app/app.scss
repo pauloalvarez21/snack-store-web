@@ -28,7 +28,10 @@
 }
 
 .brand-logo {
-  font-size: 1.5rem;
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .brand-name {

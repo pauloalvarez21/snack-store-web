@@ -1,0 +1,376 @@
+<section class="admin-page">
+  <header class="admin-hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Administración</p>
+      <h1>Panel de administración</h1>
+      <p class="hero-subtitle">Gestiona productos, categorías e inventario de la tienda.</p>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <div class="tabs" role="tablist" aria-label="Secciones de administración">
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.active]="tab() === 'products'"
+        [attr.aria-selected]="tab() === 'products'"
+        (click)="switchTab('products')"
+      >
+        Productos
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.active]="tab() === 'categories'"
+        [attr.aria-selected]="tab() === 'categories'"
+        (click)="switchTab('categories')"
+      >
+        Categorías
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.active]="tab() === 'inventory'"
+        [attr.aria-selected]="tab() === 'inventory'"
+        (click)="switchTab('inventory')"
+      >
+        Inventario
+      </button>
+    </div>
+
+    @if (tab() === 'products') {
+      <div class="toolbar">
+        <input
+          class="search-input"
+          type="search"
+          placeholder="Buscar por nombre o SKU…"
+          [value]="productSearch()"
+          (input)="onProductSearchInput($event)"
+          aria-label="Buscar productos"
+        />
+        @if (!productFormOpen()) {
+          <button class="btn-primary" type="button" (click)="openProductForm()">+ Agregar producto</button>
+        }
+      </div>
+
+      @if (productFeedback(); as fb) {
+        <p class="feedback {{ fb.type }}" role="status">{{ fb.message }}</p>
+      }
+
+      @if (productFormOpen()) {
+        <form class="admin-form" [formGroup]="productForm" (ngSubmit)="saveProduct()">
+          <h3>{{ productEditingId() ? 'Editar producto' : 'Nuevo producto' }}</h3>
+          <div class="form-grid">
+            <label>
+              Nombre *
+              <input formControlName="name" type="text" maxlength="200" />
+            </label>
+            <label>
+              SKU *
+              <input formControlName="sku" type="text" maxlength="50" />
+            </label>
+            <label>
+              Precio (CLP) *
+              <input formControlName="price" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              Precio oferta
+              <input formControlName="salePrice" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              Unidad *
+              <input formControlName="unit" type="text" maxlength="20" placeholder="kg, g, unidad…" />
+            </label>
+            <label>
+              Categoría
+              <select formControlName="categoryId">
+                <option [ngValue]="null">Sin categoría</option>
+                @for (cat of allCategories(); track cat.id) {
+                  <option [ngValue]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            </label>
+          </div>
+          <label>
+            Descripción
+            <textarea formControlName="description" rows="3" placeholder="Descripción del producto (opcional)"></textarea>
+          </label>
+          <div class="form-row">
+            <label class="check">
+              <input formControlName="isPerishable" type="checkbox" />
+              Perecedero
+            </label>
+            <label class="check">
+              <input formControlName="isOrganic" type="checkbox" />
+              Orgánico
+            </label>
+            <label class="check">
+              <input formControlName="isActive" type="checkbox" />
+              Activo
+            </label>
+          </div>
+          <label>
+            Imagen (URL)
+            <input formControlName="imageUrl" type="url" placeholder="https://…" />
+          </label>
+          <div class="form-row">
+            <label class="file-upload">
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" (change)="onFileSelected($event)" />
+              <span>{{ uploadingImage() ? 'Subiendo…' : '📤 Subir imagen' }}</span>
+            </label>
+            @if (productForm.controls.imageUrl.value) {
+              <img class="thumb" [src]="productForm.controls.imageUrl.value" alt="Vista previa" />
+            }
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" type="submit" [disabled]="productBusy() || productForm.invalid">
+              {{ productBusy() ? 'Guardando…' : productEditingId() ? 'Guardar cambios' : 'Crear producto' }}
+            </button>
+            <button class="btn-ghost" type="button" (click)="closeProductForm()">Cancelar</button>
+          </div>
+        </form>
+      }
+
+      @if (productsError()) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">😵</span>
+          <h3>No pudimos cargar los productos</h3>
+          <p>{{ productsErrorMsg() }}</p>
+          <button class="btn-secondary" type="button" (click)="loadProducts()">Reintentar</button>
+        </div>
+      } @else if (productsLoading()) {
+        <app-order-skeleton />
+      } @else if (products().length === 0) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">📭</span>
+          <h3>No hay productos</h3>
+          <p>No se encontraron productos con esos criterios.</p>
+        </div>
+      } @else {
+        <div class="list">
+          @for (product of products(); track product.id) {
+            <article class="row">
+              @if (product.imageUrl) {
+                <img class="row-thumb" [src]="product.imageUrl" [alt]="product.name" />
+              } @else {
+                <span class="row-thumb emoji" aria-hidden="true">{{ productEmoji(product) }}</span>
+              }
+              <div class="row-main">
+                <span class="row-title">{{ product.name }}</span>
+                <span class="row-sub">{{ product.sku }} · {{ categoryName(product.categoryId) }}</span>
+              </div>
+              <span class="row-price">{{ formatPrice(product.price) }}</span>
+              <span class="badge {{ product.isActive ? 'badge-on' : 'badge-off' }}">
+                {{ product.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+              <div class="row-actions">
+                <button class="btn-ghost small" type="button" (click)="toggleProductActive(product)" title="Activar / desactivar">
+                  {{ product.isActive ? 'Desactivar' : 'Activar' }}
+                </button>
+                <button class="btn-ghost small" type="button" (click)="openProductForm(product)">Editar</button>
+                <button class="btn-cancel small" type="button" (click)="removeProduct(product)">Eliminar</button>
+              </div>
+            </article>
+          }
+        </div>
+
+        <app-order-pagination
+          [page]="productsPage()"
+          [totalPages]="productsTotalPages()"
+          label="Paginación de productos"
+          (pageChange)="goToProductsPage($event)"
+        />
+      }
+    }
+
+    @if (tab() === 'categories') {
+      @if (categoryFeedback(); as fb) {
+        <p class="feedback {{ fb.type }}" role="status">{{ fb.message }}</p>
+      }
+
+      @if (!categoryFormOpen()) {
+        <div class="toolbar">
+          <button class="btn-primary" type="button" (click)="openCategoryForm()">+ Agregar categoría</button>
+        </div>
+      }
+
+      @if (categoryFormOpen()) {
+        <form class="admin-form" [formGroup]="categoryForm" (ngSubmit)="saveCategory()">
+          <h3>{{ categoryEditingId() ? 'Editar categoría' : 'Nueva categoría' }}</h3>
+          <div class="form-grid">
+            <label>
+              Nombre *
+              <input formControlName="name" type="text" maxlength="100" />
+            </label>
+            <label>
+              Categoría padre
+              <select formControlName="parentId">
+                <option [ngValue]="null">Sin padre</option>
+                @for (cat of allCategories(); track cat.id) {
+                  @if (cat.id !== categoryEditingId()) {
+                    <option [ngValue]="cat.id">{{ cat.name }}</option>
+                  }
+                }
+              </select>
+            </label>
+          </div>
+          <label>
+            Descripción
+            <textarea formControlName="description" rows="2" placeholder="Descripción (opcional)"></textarea>
+          </label>
+          <div class="form-row">
+            <label class="check">
+              <input formControlName="isActive" type="checkbox" />
+              Activa
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" type="submit" [disabled]="categoryBusy() || categoryForm.invalid">
+              {{ categoryBusy() ? 'Guardando…' : categoryEditingId() ? 'Guardar cambios' : 'Crear categoría' }}
+            </button>
+            <button class="btn-ghost" type="button" (click)="closeCategoryForm()">Cancelar</button>
+          </div>
+        </form>
+      }
+
+      @if (categoriesError()) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">😵</span>
+          <h3>No pudimos cargar las categorías</h3>
+          <p>{{ categoriesErrorMsg() }}</p>
+          <button class="btn-secondary" type="button" (click)="loadCategories()">Reintentar</button>
+        </div>
+      } @else if (categoriesLoading()) {
+        <app-order-skeleton />
+      } @else if (categories().length === 0) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">📭</span>
+          <h3>No hay categorías</h3>
+          <p>Crea la primera categoría para organizar tus productos.</p>
+        </div>
+      } @else {
+        <div class="list">
+          @for (cat of categories(); track cat.id) {
+            <article class="row">
+              <div class="row-main">
+                <span class="row-title">{{ cat.name }}</span>
+                <span class="row-sub">
+                  /{{ cat.slug }}@if (cat.parentId) { · hija de {{ categoryName(cat.parentId) }} }
+                </span>
+              </div>
+              <span class="badge {{ cat.isActive ? 'badge-on' : 'badge-off' }}">
+                {{ cat.isActive ? 'Activa' : 'Inactiva' }}
+              </span>
+              <div class="row-actions">
+                <button class="btn-ghost small" type="button" (click)="openCategoryForm(cat)">Editar</button>
+                <button class="btn-cancel small" type="button" (click)="removeCategory(cat)">Eliminar</button>
+              </div>
+            </article>
+          }
+        </div>
+
+        <app-order-pagination
+          [page]="categoriesPage()"
+          [totalPages]="categoriesTotalPages()"
+          label="Paginación de categorías"
+          (pageChange)="goToCategoriesPage($event)"
+        />
+      }
+    }
+
+    @if (tab() === 'inventory') {
+      <div class="toolbar">
+        <input
+          class="search-input"
+          type="search"
+          placeholder="Buscar por producto o SKU…"
+          [value]="inventorySearch()"
+          (input)="onInventorySearchInput($event)"
+          aria-label="Buscar en inventario"
+        />
+      </div>
+
+      @if (inventoryFeedback(); as fb) {
+        <p class="feedback {{ fb.type }}" role="status">{{ fb.message }}</p>
+      }
+
+      @if (inventoryError()) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">😵</span>
+          <h3>No pudimos cargar el inventario</h3>
+          <p>{{ inventoryErrorMsg() }}</p>
+          <button class="btn-secondary" type="button" (click)="loadInventory()">Reintentar</button>
+        </div>
+      } @else if (inventoryLoading()) {
+        <app-order-skeleton />
+      } @else if (inventory().length === 0) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">📦</span>
+          <h3>Sin registros de inventario</h3>
+          <p>Los productos sin stock configurado no aparecen aquí.</p>
+        </div>
+      } @else {
+        <div class="list">
+          @for (item of inventory(); track item.productId) {
+            <article class="row">
+              <div class="row-main">
+                <span class="row-title">{{ item.product?.name ?? 'Producto eliminado' }}</span>
+                <span class="row-sub">{{ item.product?.sku }}</span>
+              </div>
+              <span class="badge {{ stockClass(item.stockStatus) }}">{{ stockStatusLabel[item.stockStatus] }}</span>
+              <span class="row-price">Stock: {{ item.stockQuantity }} · Mín: {{ item.minStockLevel }}</span>
+              <div class="row-actions">
+                <button class="btn-ghost small" type="button" (click)="openInventoryForm(item)">Gestionar</button>
+              </div>
+            </article>
+
+            @if (inventoryEditingId() === item.productId) {
+              <form class="inventory-form" [formGroup]="inventoryForm" (ngSubmit)="saveInventory()">
+                <div class="form-grid three">
+                  <label>
+                    Stock (fijar)
+                    <input formControlName="stockQuantity" type="number" min="0" step="0.001" />
+                  </label>
+                  <label>
+                    Mínimo
+                    <input formControlName="minStockLevel" type="number" min="0" step="0.001" />
+                  </label>
+                  <label>
+                    Vencimiento
+                    <input formControlName="expirationDate" type="date" />
+                  </label>
+                </div>
+                <div class="form-actions">
+                  <button class="btn-primary" type="submit" [disabled]="inventoryBusy()">
+                    {{ inventoryBusy() ? 'Guardando…' : 'Guardar' }}
+                  </button>
+                  <button class="btn-ghost" type="button" (click)="closeInventoryForm()">Cancelar</button>
+                </div>
+              </form>
+
+              <form class="inventory-form adjust" [formGroup]="adjustForm" (ngSubmit)="adjustStock(item)">
+                <label class="inline">
+                  Ajustar stock (±)
+                  <input formControlName="quantity" type="number" step="0.001" placeholder="+5 o -3" />
+                </label>
+                <button class="btn-secondary" type="submit" [disabled]="inventoryBusy()">
+                  {{ inventoryBusy() ? 'Ajustando…' : 'Aplicar ajuste' }}
+                </button>
+              </form>
+            }
+          }
+        </div>
+
+        <app-order-pagination
+          [page]="inventoryPage()"
+          [totalPages]="inventoryTotalPages()"
+          label="Paginación de inventario"
+          (pageChange)="goToInventoryPage($event)"
+        />
+      }
+    }
+  </div>
+</section>

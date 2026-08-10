@@ -1,0 +1,12 @@
+<div class="filter-row" role="group" [attr.aria-label]="label()">
+  @for (filter of options(); track filter.value) {
+    <button
+      type="button"
+      class="status-chip"
+      [class.active]="active() === filter.value"
+      (click)="pick(filter.value)"
+    >
+      {{ filter.label }}
+    </button>
+  }
+</div>

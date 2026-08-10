@@ -1,0 +1,74 @@
+<section class="addresses-page">
+  <header class="page-head">
+    <p class="eyebrow">Tu cuenta</p>
+    <h1>Mis direcciones</h1>
+    <p>Administra tus direcciones de envío. Las usarás al finalizar tus pedidos.</p>
+  </header>
+
+  <div class="layout">
+    @if (loading()) {
+      <p class="note">Cargando tus direcciones…</p>
+    } @else if (error()) {
+      <div class="error-box">
+        <p class="field-error">No pudimos cargar tus direcciones.</p>
+        <button class="btn-secondary" type="button" (click)="load()">Reintentar</button>
+      </div>
+    } @else {
+      @if (addresses().length > 0) {
+        <div class="address-grid">
+          @for (address of addresses(); track address.id) {
+            <article class="address-card">
+              <div class="card-body">
+                <p class="line1">
+                  {{ address.addressLine1 }}@if (address.addressLine2) {, {{ address.addressLine2 }} }
+                  @if (address.isDefault) {
+                    <span class="badge">Principal</span>
+                  }
+                </p>
+                <p class="city">
+                  {{ address.city }}@if (address.stateProvince) {, {{ address.stateProvince }} }
+                </p>
+                @if (address.deliveryNotes) {
+                  <p class="notes">📝 {{ address.deliveryNotes }}</p>
+                }
+              </div>
+              <div class="card-actions">
+                @if (!address.isDefault) {
+                  <button class="mini-btn" type="button" (click)="setDefault(address)">⭐ Hacer principal</button>
+                }
+                <button class="mini-btn" type="button" (click)="startEdit(address)">Editar</button>
+                <button class="mini-btn danger" type="button" (click)="remove(address)">Eliminar</button>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="empty">
+          <span class="empty-emoji" aria-hidden="true">📍</span>
+          <p>Aún no tienes direcciones guardadas.</p>
+          <p class="empty-hint">Agrega la primera para usarla en tus pedidos.</p>
+        </div>
+      }
+
+      <div class="toolbar">
+        @if (addresses().length > 0) {
+          <button class="btn-secondary" type="button" (click)="toggleForm()">
+            {{ showForm() ? 'Cancelar' : '+ Agregar dirección' }}
+          </button>
+        }
+        @if (errorMsg()) {
+          <p class="field-error page-error" role="alert">{{ errorMsg() }}</p>
+        }
+      </div>
+
+      @if (editingId() || showForm() || addresses().length === 0) {
+        <app-address-form
+          [editing]="editingAddress()"
+          [showCancel]="editingId() !== null || addresses().length > 0"
+          (saved)="onSaved($event)"
+          (cancel)="cancelForm()"
+        />
+      }
+    }
+  </div>
+</section>
