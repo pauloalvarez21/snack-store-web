@@ -5,7 +5,7 @@ import { finalize, of, switchMap } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
-import { fieldError } from '../../core/utils/validation';
+import { fieldError, notBlank } from '../../core/utils/validation';
 
 @Component({
   selector: 'app-auth-page',
@@ -30,8 +30,8 @@ export class AuthPage {
   });
 
   protected readonly registerForm = new FormGroup({
-    firstName: new FormControl('', [Validators.required]),
-    lastName: new FormControl('', [Validators.required]),
+    firstName: new FormControl('', [Validators.required, notBlank]),
+    lastName: new FormControl('', [Validators.required, notBlank]),
     email: new FormControl('', [Validators.required, Validators.email]),
     phone: new FormControl(''),
     password: new FormControl('', [Validators.required, Validators.minLength(8)])

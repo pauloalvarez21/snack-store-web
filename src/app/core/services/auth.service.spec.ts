@@ -178,4 +178,71 @@ describe('AuthService', () => {
     expect(service.user()).toBeNull();
     expect(localStorage.getItem('snack_store_token')).toBeNull();
   });
+
+  it('stores the refresh token when login returns one', async () => {
+    const promise = firstValueFrom(service.login({ email: 'cliente@snack.store', password: 'Demo123!' }));
+    httpMock.expectOne(`${environment.apiUrl}/api/auth/login`).flush({
+      access_token: 'token-fake',
+      refresh_token: 'refresh-fake',
+      user: { id: 'u1', email: 'cliente@snack.store', role: 'CUSTOMER' }
+    });
+
+    await promise;
+    expect(service.refreshToken()).toBe('refresh-fake');
+    expect(localStorage.getItem('snack_store_refresh_token')).toBe('refresh-fake');
+  });
+
+  it('refreshes the access token with the stored refresh token (rotation)', async () => {
+    const loginPromise = firstValueFrom(service.login({ email: 'cliente@snack.store', password: 'Demo123!' }));
+    httpMock.expectOne(`${environment.apiUrl}/api/auth/login`).flush({
+      access_token: 'token-viejo',
+      refresh_token: 'refresh-viejo',
+      user: { id: 'u1', email: 'cliente@snack.store', role: 'CUSTOMER' }
+    });
+    await loginPromise;
+
+    const promise = firstValueFrom(service.refresh());
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/auth/refresh`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ refreshToken: 'refresh-viejo' });
+    req.flush({ accessToken: 'token-nuevo', refreshToken: 'refresh-nuevo' });
+
+    await promise;
+    expect(service.token()).toBe('token-nuevo');
+    expect(service.refreshToken()).toBe('refresh-nuevo');
+    expect(service.isAuthenticated()).toBe(true);
+  });
+
+  it('fails fast when refreshing without a stored refresh token', async () => {
+    const promise = firstValueFrom(service.refresh());
+    let rejected = false;
+    try {
+      await promise;
+    } catch {
+      rejected = true;
+    }
+    expect(rejected).toBe(true);
+    expect(service.isAuthenticated()).toBe(false);
+  });
+
+  it('revokes the session on the server when logging out with a refresh token', async () => {
+    const loginPromise = firstValueFrom(service.login({ email: 'cliente@snack.store', password: 'Demo123!' }));
+    httpMock.expectOne(`${environment.apiUrl}/api/auth/login`).flush({
+      access_token: 'token-fake',
+      refresh_token: 'refresh-fake',
+      user: { id: 'u1', email: 'cliente@snack.store', role: 'CUSTOMER' }
+    });
+    await loginPromise;
+
+    service.logout();
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/auth/logout`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ refreshToken: 'refresh-fake' });
+    req.flush({});
+
+    expect(service.isAuthenticated()).toBe(false);
+    expect(service.refreshToken()).toBeNull();
+    expect(localStorage.getItem('snack_store_token')).toBeNull();
+    expect(localStorage.getItem('snack_store_refresh_token')).toBeNull();
+  });
 });

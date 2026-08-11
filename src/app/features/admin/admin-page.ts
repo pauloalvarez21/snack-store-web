@@ -11,19 +11,28 @@ import {
   UpdateInventoryDto
 } from '../../core/models/inventory.model';
 import { CreateProductDto, Product, UpdateProductDto } from '../../core/models/product.model';
+import { User, UserRole } from '../../core/models/user.model';
+import { AuthService } from '../../core/services/auth.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ProductsService } from '../../core/services/products.service';
-import { formatPrice, productEmoji } from '../../core/utils/format';
+import { UsersService } from '../../core/services/users.service';
+import { USER_ROLES, formatDateTime, formatPrice, productEmoji, userRoleLabel } from '../../core/utils/format';
 import { OrderPagination } from '../../shared/order/order-pagination';
 import { OrderSkeleton } from '../../shared/order/order-skeleton';
 
-type AdminTab = 'products' | 'categories' | 'inventory';
+type AdminTab = 'products' | 'categories' | 'inventory' | 'users';
 
 const STOCK_CLASS: Record<StockStatus, string> = {
   IN_STOCK: 'st-in',
   LOW_STOCK: 'st-low',
   OUT_OF_STOCK: 'st-out'
+};
+
+const ROLE_CLASS: Record<UserRole, string> = {
+  CUSTOMER: 'role-customer',
+  ADMIN: 'role-admin',
+  DELIVERY: 'role-delivery'
 };
 
 @Component({
@@ -36,6 +45,8 @@ export class AdminPage {
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
   private readonly inventoryService = inject(InventoryService);
+  private readonly usersService = inject(UsersService);
+  private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly tab = signal<AdminTab>('products');
@@ -43,6 +54,7 @@ export class AdminPage {
   // ===== Búsquedas (debounce manual con input nativo) =====
   protected readonly productSearch = signal('');
   protected readonly inventorySearch = signal('');
+  protected readonly usersSearch = signal('');
 
   // ===== Productos =====
   protected readonly products = signal<Product[]>([]);
@@ -127,19 +139,40 @@ export class AdminPage {
     quantity: new FormControl<number | null>(null)
   });
 
+  // ===== Usuarios =====
+  protected readonly users = signal<User[]>([]);
+  protected readonly usersPage = signal(1);
+  protected readonly usersTotal = signal(0);
+  protected readonly usersLoading = signal(true);
+  protected readonly usersError = signal(false);
+  protected readonly usersErrorMsg = signal('');
+  protected readonly usersRoleFilter = signal<UserRole | null>(null);
+  protected readonly usersFeedback = signal<{ type: 'error' | 'success'; message: string } | null>(null);
+  protected readonly roleUpdatingId = signal<string | null>(null);
+
+  protected readonly usersTotalPages = computed(() =>
+    Math.max(1, Math.ceil(this.usersTotal() / 20))
+  );
+
+  protected readonly userRoles = USER_ROLES;
+  protected readonly userRoleLabel = userRoleLabel;
+
   protected readonly formatPrice = formatPrice;
+  protected readonly formatDateTime = formatDateTime;
   protected readonly productEmoji = productEmoji;
   protected readonly stockStatusLabel = STOCK_STATUS_LABEL;
   protected readonly stockClass = (s: StockStatus): string => STOCK_CLASS[s];
 
   private readonly productSearch$ = new Subject<string>();
   private readonly inventorySearch$ = new Subject<string>();
+  private readonly usersSearch$ = new Subject<string>();
 
   constructor() {
     this.loadProducts();
     this.loadCategories();
     this.loadAllCategories();
     this.loadInventory();
+    this.loadUsers();
 
     const productSub = this.productSearch$.pipe(debounceTime(300)).subscribe((value) => {
       this.productSearch.set(value.trim());
@@ -151,9 +184,15 @@ export class AdminPage {
       this.inventoryPage.set(1);
       this.loadInventory();
     });
+    const usersSub = this.usersSearch$.pipe(debounceTime(300)).subscribe((value) => {
+      this.usersSearch.set(value.trim());
+      this.usersPage.set(1);
+      this.loadUsers();
+    });
     this.destroyRef.onDestroy(() => {
       productSub.unsubscribe();
       inventorySub.unsubscribe();
+      usersSub.unsubscribe();
     });
   }
 
@@ -449,6 +488,110 @@ export class AdminPage {
       });
   }
 
+  // ===== Usuarios =====
+  protected onUsersSearchInput(event: Event): void {
+    this.usersSearch$.next((event.target as HTMLInputElement).value);
+  }
+
+  protected onRoleFilterChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.setUsersRoleFilter(value === 'ALL' ? null : (value as UserRole));
+  }
+
+  protected setUsersRoleFilter(role: UserRole | null): void {
+    if (role === this.usersRoleFilter()) return;
+    this.usersRoleFilter.set(role);
+    this.usersPage.set(1);
+    this.loadUsers();
+  }
+
+  protected onRoleChange(user: User, event: Event): void {
+    const role = (event.target as HTMLSelectElement).value as UserRole;
+    if (role === user.role) return;
+    this.changeRole(user, role);
+  }
+
+  protected changeRole(user: User, role: UserRole): void {
+    if (this.roleUpdatingId() !== null) return;
+    this.roleUpdatingId.set(user.id);
+    this.usersFeedback.set(null);
+    this.usersService
+      .updateRole(user.id, { role })
+      .pipe(finalize(() => this.roleUpdatingId.set(null)))
+      .subscribe({
+        next: () => {
+          this.usersFeedback.set({ type: 'success', message: `Rol cambiado a ${userRoleLabel(role)}.` });
+          this.loadUsers(true);
+        },
+        error: (err) => {
+          this.usersFeedback.set({ type: 'error', message: this.apiMessage(err, 'No se pudo cambiar el rol.') });
+          // Recarga para restaurar el rol real en el select.
+          this.loadUsers(true);
+        }
+      });
+  }
+
+  /** No se puede cambiar el propio rol (evita salirse del panel por accidente). */
+  protected isSelf(user: User): boolean {
+    return user.id === this.auth.user()?.id;
+  }
+
+  protected userFullName(user: User): string {
+    return [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.email;
+  }
+
+  protected userInitials(user: User): string {
+    const parts = [user.firstName, user.lastName].filter(Boolean) as string[];
+    if (parts.length === 0) return (user.email.charAt(0) || '?').toUpperCase();
+    return parts
+      .map((p) => p.charAt(0))
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  }
+
+  protected roleClass(role: UserRole): string {
+    return ROLE_CLASS[role];
+  }
+
+  protected loadUsers(silent = false): void {
+    if (!silent) {
+      this.usersLoading.set(true);
+      this.usersError.set(false);
+      this.usersErrorMsg.set('');
+    }
+    const search = this.usersSearch().trim();
+    const role = this.usersRoleFilter();
+    this.usersService
+      .findAll({
+        page: this.usersPage(),
+        limit: 20,
+        search: search || undefined,
+        role: role ?? undefined
+      })
+      .subscribe({
+        next: (res) => {
+          this.users.set(res.data);
+          this.usersTotal.set(res.total);
+          this.usersPage.set(res.page);
+          this.usersLoading.set(false);
+        },
+        error: () => {
+          if (!silent) {
+            this.usersLoading.set(false);
+            this.usersError.set(true);
+            this.usersErrorMsg.set('Verifica que el backend esté disponible e inténtalo de nuevo.');
+          }
+        }
+      });
+  }
+
+  protected goToUsersPage(page: number): void {
+    if (page < 1 || page > this.usersTotalPages() || page === this.usersPage()) return;
+    this.usersPage.set(page);
+    this.loadUsers();
+  }
+
   // ===== Cargas =====
   protected loadProducts(): void {
     this.productsLoading.set(true);
@@ -560,5 +703,6 @@ export class AdminPage {
     this.productFeedback.set(null);
     this.categoryFeedback.set(null);
     this.inventoryFeedback.set(null);
+    this.usersFeedback.set(null);
   }
 }

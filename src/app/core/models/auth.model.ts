@@ -15,7 +15,26 @@ export interface LoginResponse {
   access_token?: string;
   accessToken?: string;
   token?: string;
+  refresh_token?: string;
+  refreshToken?: string;
   user?: AuthUser;
+}
+
+export interface RefreshRequest {
+  refreshToken: string;
+}
+
+export interface RefreshResponse {
+  access_token?: string;
+  accessToken?: string;
+  token?: string;
+  refresh_token?: string;
+  refreshToken?: string;
+  user?: AuthUser;
+}
+
+export interface LogoutRequest {
+  refreshToken?: string;
 }
 
 export interface AuthUser {
@@ -23,6 +42,6 @@ export interface AuthUser {
   email: string;
   firstName?: string;
   lastName?: string;
-  phone?: string;
+  phone?: string | null;
   role: string;
 }

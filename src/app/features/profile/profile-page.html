@@ -1,0 +1,169 @@
+<section class="profile-page">
+  <header class="page-head">
+    <p class="eyebrow">Tu cuenta</p>
+    <h1>Mi perfil</h1>
+    <p>Revisa y actualiza tus datos personales o cambia tu contraseña cuando lo necesites.</p>
+  </header>
+
+  <div class="layout">
+    @if (loading()) {
+      <p class="note">Cargando tu perfil…</p>
+    } @else if (error()) {
+      <div class="error-box">
+        <p class="field-error">No pudimos cargar tu perfil.</p>
+        <button class="btn-secondary" type="button" (click)="load()">Reintentar</button>
+      </div>
+    } @else {
+      <div class="profile-grid">
+        <!-- Datos personales -->
+        <form class="card" [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+          <div class="card-head">
+            <span class="avatar" aria-hidden="true">
+              {{ (profileForm.get('firstName')?.value ?? '').charAt(0).toUpperCase() || 'U' }}
+            </span>
+            <div class="head-text">
+              <h2>Datos personales</h2>
+              <p class="card-sub">Nombre, apellido y teléfono de contacto.</p>
+            </div>
+            <span class="role-badge">{{ userRoleLabel(role()) }}</span>
+          </div>
+
+          @if (profileSaved()) {
+            <div class="banner success" role="status">✓ Tus datos se guardaron correctamente.</div>
+          }
+          @if (profileError()) {
+            <div class="banner error" role="alert">{{ profileError() }}</div>
+          }
+
+          <div class="field">
+            <span class="field-label">Email</span>
+            <div class="email-box">
+              <span>{{ email() }}</span>
+              <span class="email-icon" aria-hidden="true">✉️</span>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <label class="field">
+              <span class="field-label">Nombre</span>
+              <input formControlName="firstName" type="text" placeholder="Juan" autocomplete="given-name" />
+              @if (errorFor(profileForm, 'firstName')) {
+                <span class="field-error">{{ errorFor(profileForm, 'firstName') }}</span>
+              }
+            </label>
+            <label class="field">
+              <span class="field-label">Apellido</span>
+              <input formControlName="lastName" type="text" placeholder="Pérez" autocomplete="family-name" />
+              @if (errorFor(profileForm, 'lastName')) {
+                <span class="field-error">{{ errorFor(profileForm, 'lastName') }}</span>
+              }
+            </label>
+          </div>
+
+          <label class="field">
+            <span class="field-label">Teléfono <small>(opcional)</small></span>
+            <input formControlName="phone" type="tel" placeholder="+56912345678" autocomplete="tel" />
+          </label>
+
+          <button class="btn-primary save" type="submit" [disabled]="profileForm.invalid || savingProfile()">
+            {{ savingProfile() ? 'Guardando…' : 'Guardar cambios' }}
+          </button>
+        </form>
+
+        <!-- Cambiar contraseña -->
+        <form class="card" [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
+          <div class="card-head">
+            <span class="card-icon" aria-hidden="true">🔒</span>
+            <div class="head-text">
+              <h2>Cambiar contraseña</h2>
+              <p class="card-sub">Usa una contraseña nueva de al menos 8 caracteres.</p>
+            </div>
+          </div>
+
+          @if (passwordSaved()) {
+            <div class="banner success" role="status">✓ Tu contraseña se actualizó correctamente.</div>
+          }
+          @if (passwordError()) {
+            <div class="banner error" role="alert">{{ passwordError() }}</div>
+          }
+
+          <label class="field">
+            <span class="field-label">Contraseña actual</span>
+            <div class="password-wrap">
+              <input
+                formControlName="currentPassword"
+                [type]="showCurrentPassword() ? 'text' : 'password'"
+                placeholder="••••••••"
+                autocomplete="current-password"
+              />
+              <button
+                class="eye"
+                type="button"
+                (click)="showCurrentPassword.set(!showCurrentPassword())"
+                [attr.aria-label]="showCurrentPassword() ? 'Ocultar contraseña actual' : 'Mostrar contraseña actual'"
+              >
+                {{ showCurrentPassword() ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            @if (errorFor(passwordForm, 'currentPassword')) {
+              <span class="field-error">{{ errorFor(passwordForm, 'currentPassword') }}</span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field-label">Contraseña nueva</span>
+            <div class="password-wrap">
+              <input
+                formControlName="newPassword"
+                [type]="showNewPassword() ? 'text' : 'password'"
+                placeholder="Mínimo 8 caracteres"
+                autocomplete="new-password"
+              />
+              <button
+                class="eye"
+                type="button"
+                (click)="showNewPassword.set(!showNewPassword())"
+                [attr.aria-label]="showNewPassword() ? 'Ocultar contraseña nueva' : 'Mostrar contraseña nueva'"
+              >
+                {{ showNewPassword() ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            @if (errorFor(passwordForm, 'newPassword')) {
+              <span class="field-error">{{ errorFor(passwordForm, 'newPassword') }}</span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field-label">Repetir contraseña nueva</span>
+            <div class="password-wrap">
+              <input
+                formControlName="confirmPassword"
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+                placeholder="••••••••"
+                autocomplete="new-password"
+              />
+              <button
+                class="eye"
+                type="button"
+                (click)="showConfirmPassword.set(!showConfirmPassword())"
+                [attr.aria-label]="showConfirmPassword() ? 'Ocultar repetición' : 'Mostrar repetición'"
+              >
+                {{ showConfirmPassword() ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            @if (errorFor(passwordForm, 'confirmPassword')) {
+              <span class="field-error">{{ errorFor(passwordForm, 'confirmPassword') }}</span>
+            }
+            @if (passwordMismatch()) {
+              <span class="field-error">Las contraseñas no coinciden.</span>
+            }
+          </label>
+
+          <button class="btn-primary save" type="submit" [disabled]="passwordForm.invalid || savingPassword()">
+            {{ savingPassword() ? 'Cambiando…' : 'Cambiar contraseña' }}
+          </button>
+        </form>
+      </div>
+    }
+  </div>
+</section>

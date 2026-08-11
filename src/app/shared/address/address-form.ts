@@ -4,7 +4,7 @@ import { finalize } from 'rxjs';
 
 import { Address, CreateAddressDto } from '../../core/models/address.model';
 import { AddressService } from '../../core/services/address.service';
-import { fieldError } from '../../core/utils/validation';
+import { fieldError, notBlank } from '../../core/utils/validation';
 
 /**
  * Formulario de dirección reutilizable (libreta de direcciones y checkout).
@@ -35,9 +35,9 @@ export class AddressForm {
   protected readonly errorMsg = signal<string | null>(null);
 
   protected readonly addressForm = new FormGroup({
-    addressLine1: new FormControl('', [Validators.required]),
+    addressLine1: new FormControl('', [Validators.required, notBlank]),
     addressLine2: new FormControl(''),
-    city: new FormControl('', [Validators.required]),
+    city: new FormControl('', [Validators.required, notBlank]),
     stateProvince: new FormControl(''),
     deliveryNotes: new FormControl('')
   });

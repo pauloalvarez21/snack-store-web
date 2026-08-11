@@ -9,6 +9,7 @@ import { CatalogPage } from './features/catalog/catalog-page';
 import { CheckoutPage } from './features/checkout/checkout-page';
 import { MyOrdersPage } from './features/my-orders/my-orders-page';
 import { OrdersPage } from './features/orders/orders-page';
+import { ProfilePage } from './features/profile/profile-page';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'catalogo' },
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'checkout', component: CheckoutPage, canActivate: [authGuard] },
   { path: 'direcciones', component: AddressesPage, canActivate: [authGuard] },
   { path: 'mis-pedidos', component: MyOrdersPage, canActivate: [authGuard] },
+  { path: 'perfil', component: ProfilePage, canActivate: [authGuard] },
   {
     path: 'pedidos',
     component: OrdersPage,

@@ -1,6 +1,6 @@
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { fieldError } from './validation';
+import { fieldError, matchingPasswords, notBlank } from './validation';
 
 describe('fieldError', () => {
   it('returns null when the control has no errors', () => {
@@ -34,5 +34,45 @@ describe('fieldError', () => {
   it('handles null/undefined controls', () => {
     expect(fieldError(null)).toBeNull();
     expect(fieldError(undefined)).toBeNull();
+  });
+});
+
+describe('matchingPasswords', () => {
+  function group(password: string, confirm: string): FormGroup {
+    return new FormGroup({
+      newPassword: new FormControl(password),
+      confirmPassword: new FormControl(confirm)
+    });
+  }
+
+  it('returns null when both passwords match', () => {
+    expect(matchingPasswords(group('Nueva123!', 'Nueva123!'))).toBeNull();
+  });
+
+  it('returns a mismatch error when the passwords differ', () => {
+    expect(matchingPasswords(group('Nueva123!', 'Otra123!'))).toEqual({ mismatch: true });
+  });
+
+  it('returns null while the fields are empty', () => {
+    expect(matchingPasswords(group('', ''))).toBeNull();
+  });
+});
+
+describe('notBlank', () => {
+  it('returns null for a normal string', () => {
+    expect(notBlank(new FormControl('Juan'))).toBeNull();
+  });
+
+  it('returns a blank error for whitespace-only strings', () => {
+    expect(notBlank(new FormControl('   '))).toEqual({ blank: true });
+  });
+
+  it('returns a blank error for empty or null values', () => {
+    expect(notBlank(new FormControl(''))).toEqual({ blank: true });
+    expect(notBlank(new FormControl(null))).toEqual({ blank: true });
+  });
+
+  it('returns null for non-string values', () => {
+    expect(notBlank(new FormControl(42))).toBeNull();
   });
 });

@@ -77,6 +77,19 @@ describe('AddressForm', () => {
     expect(saved).not.toHaveBeenCalled();
   });
 
+  it('rejects an address whose required fields are only whitespace', () => {
+    const saved = vi.fn();
+    component.saved.subscribe(saved);
+
+    fill('addressLine1', '   ');
+    fill('city', '  ');
+    submit();
+
+    expect(fixture.nativeElement.textContent).toContain('No puede contener solo espacios');
+    httpMock.expectNone(`${environment.apiUrl}/api/addresses`);
+    expect(saved).not.toHaveBeenCalled();
+  });
+
   it('creates an address on submit and emits it with the trimmed payload', () => {
     const saved = vi.fn();
     component.saved.subscribe(saved);

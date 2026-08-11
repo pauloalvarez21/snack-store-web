@@ -3,7 +3,7 @@
     <div class="hero-inner">
       <p class="hero-eyebrow">Administración</p>
       <h1>Panel de administración</h1>
-      <p class="hero-subtitle">Gestiona productos, categorías e inventario de la tienda.</p>
+      <p class="hero-subtitle">Gestiona productos, categorías, inventario y usuarios de la tienda.</p>
     </div>
   </header>
 
@@ -38,6 +38,16 @@
         (click)="switchTab('inventory')"
       >
         Inventario
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.active]="tab() === 'users'"
+        [attr.aria-selected]="tab() === 'users'"
+        (click)="switchTab('users')"
+      >
+        Usuarios
       </button>
     </div>
 
@@ -369,6 +379,88 @@
           [totalPages]="inventoryTotalPages()"
           label="Paginación de inventario"
           (pageChange)="goToInventoryPage($event)"
+        />
+      }
+    }
+
+    @if (tab() === 'users') {
+      <div class="toolbar">
+        <input
+          class="search-input"
+          type="search"
+          placeholder="Buscar por email o nombre…"
+          [value]="usersSearch()"
+          (input)="onUsersSearchInput($event)"
+          aria-label="Buscar usuarios"
+        />
+        <select
+          class="filter-select"
+          [value]="usersRoleFilter() ?? 'ALL'"
+          (change)="onRoleFilterChange($event)"
+          aria-label="Filtrar usuarios por rol"
+        >
+          <option value="ALL">Todos los roles</option>
+          <option value="CUSTOMER">Clientes</option>
+          <option value="ADMIN">Administradores</option>
+          <option value="DELIVERY">Repartidores</option>
+        </select>
+      </div>
+
+      @if (usersFeedback(); as fb) {
+        <p class="feedback {{ fb.type }}" role="status">{{ fb.message }}</p>
+      }
+
+      @if (usersError()) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">😵</span>
+          <h3>No pudimos cargar los usuarios</h3>
+          <p>{{ usersErrorMsg() }}</p>
+          <button class="btn-secondary" type="button" (click)="loadUsers()">Reintentar</button>
+        </div>
+      } @else if (usersLoading()) {
+        <app-order-skeleton />
+      } @else if (users().length === 0) {
+        <div class="state">
+          <span class="state-emoji" aria-hidden="true">📭</span>
+          <h3>Sin resultados</h3>
+          <p>No hay usuarios que coincidan con los criterios de búsqueda.</p>
+        </div>
+      } @else {
+        <div class="list">
+          @for (user of users(); track user.id) {
+            <article class="row user-row" [class.updating]="roleUpdatingId() === user.id">
+              <span class="user-avatar" aria-hidden="true">{{ userInitials(user) }}</span>
+              <div class="row-main">
+                <span class="row-title">{{ userFullName(user) }}</span>
+                <span class="row-sub">
+                  {{ user.email }}@if (user.createdAt) {
+                    · Registrado el {{ formatDateTime(user.createdAt) }}
+                  }
+                </span>
+              </div>
+              @if (isSelf(user)) {
+                <span class="badge self">Tú</span>
+              }
+              <select
+                class="role-select {{ roleClass(user.role) }}"
+                [value]="user.role"
+                [disabled]="isSelf(user) || roleUpdatingId() !== null"
+                (change)="onRoleChange(user, $event)"
+                [attr.aria-label]="'Cambiar rol de ' + userFullName(user)"
+              >
+                @for (role of userRoles; track role) {
+                  <option [value]="role">{{ userRoleLabel(role) }}</option>
+                }
+              </select>
+            </article>
+          }
+        </div>
+
+        <app-order-pagination
+          [page]="usersPage()"
+          [totalPages]="usersTotalPages()"
+          label="Paginación de usuarios"
+          (pageChange)="goToUsersPage($event)"
         />
       }
     }

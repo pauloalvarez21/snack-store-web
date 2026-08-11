@@ -127,6 +127,26 @@
   }
 }
 
+.filter-select {
+  border: 1px solid var(--c-border-strong);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
+  &:focus {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 3px var(--c-primary-soft);
+  }
+}
+
 /* ===== Formularios ===== */
 .admin-form {
   background: var(--c-surface);
@@ -355,6 +375,72 @@
 .st-out {
   background: rgb(239 68 68 / 0.14);
   color: #dc2626;
+}
+
+.user-row {
+  &.updating {
+    opacity: 0.7;
+  }
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--c-primary), var(--c-primary-strong));
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.role-select {
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  padding: 7px 10px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
+  &:focus {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 3px var(--c-primary-soft);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.role-customer {
+  border: 1px solid var(--c-border-strong);
+  background: var(--c-bg);
+  color: var(--c-text-muted);
+}
+
+.role-admin {
+  border: 1px solid rgb(245 158 11 / 0.45);
+  background: rgb(245 158 11 / 0.12);
+  color: #d97706;
+}
+
+.role-delivery {
+  border: 1px solid rgb(22 163 74 / 0.45);
+  background: rgb(22 163 74 / 0.12);
+  color: #16a34a;
+}
+
+.badge.self {
+  background: var(--c-primary-soft);
+  color: var(--c-primary-text);
 }
 
 .inventory-form {

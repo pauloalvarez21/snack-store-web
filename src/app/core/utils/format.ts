@@ -1,5 +1,6 @@
 import { OrderStatus, PaymentMethod } from '../models/order.model';
 import { Product } from '../models/product.model';
+import { UserRole } from '../models/user.model';
 
 /** Formatea un precio numérico como moneda (p. ej. "$2.50"). */
 export function formatPrice(value: number): string {
@@ -81,6 +82,19 @@ export function formatDateTime(iso: string): string {
     hour: '2-digit',
     minute: '2-digit'
   });
+}
+
+export const USER_ROLES: UserRole[] = ['CUSTOMER', 'ADMIN', 'DELIVERY'];
+
+const USER_ROLE_LABELS: Record<UserRole, string> = {
+  CUSTOMER: 'Cliente',
+  ADMIN: 'Administrador',
+  DELIVERY: 'Repartidor'
+};
+
+/** Etiqueta legible de un rol de usuario. */
+export function userRoleLabel(role: UserRole): string {
+  return USER_ROLE_LABELS[role] ?? role;
 }
 
 /** Emoji para una categoría según su nombre. */

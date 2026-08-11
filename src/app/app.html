@@ -16,6 +16,9 @@
       <a routerLink="/mis-pedidos" routerLinkActive="active" class="nav-link">Mis pedidos</a>
     }
     @if (auth.isAuthenticated()) {
+      <a routerLink="/perfil" routerLinkActive="active" class="nav-link">Perfil</a>
+    }
+    @if (auth.isAuthenticated()) {
       <a routerLink="/direcciones" routerLinkActive="active" class="nav-link">Direcciones</a>
     }
     @if (isStaff()) {
