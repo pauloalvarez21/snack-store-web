@@ -100,7 +100,7 @@ const ORDER: Order = {
     deliveryNotes: null
   },
   items: [{ productId: 'p-1', productName: 'Agua Mineral 1.5L', unitPrice: 1.4, quantity: 2, subtotal: 2.8 }],
-  payment: { id: 'pay-1', method: 'CREDIT_CARD', status: 'COMPLETED', transactionId: 'SIM-1', amount: 2.8 },
+  payment: { id: 'pay-1', method: 'NEQUI', status: 'COMPLETED', transactionId: 'SIM-1', walletNumber: '3001234567', amount: 2.8 },
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z'
 };
@@ -235,7 +235,7 @@ describe('CheckoutPage', () => {
 
     const create = httpMock.expectOne(`${environment.apiUrl}/api/orders`);
     expect(create.request.method).toBe('POST');
-    expect(create.request.body).toEqual({ paymentMethod: 'CREDIT_CARD', addressId: 'addr-1' });
+    expect(create.request.body).toEqual({ paymentMethod: 'NEQUI', addressId: 'addr-1' });
     create.flush(ORDER);
     fixture.detectChanges();
 
@@ -246,24 +246,25 @@ describe('CheckoutPage', () => {
     expect(fixture.nativeElement.querySelector('.success-items')).toBeTruthy();
   });
 
-  it('confirms the order with the selected payment method', () => {
+  it('confirms the order with the selected payment method and shows the wallet number', () => {
     addToCart();
     flushAddresses([ADDRESS_1]);
 
-    const transfer = Array.from(fixture.nativeElement.querySelectorAll('.payment-option')).find((el) =>
-      (el as HTMLElement).textContent?.includes('Transferencia')
+    const daviplata = Array.from(fixture.nativeElement.querySelectorAll('.payment-option')).find((el) =>
+      (el as HTMLElement).textContent?.includes('Daviplata')
     ) as HTMLElement;
-    (transfer.querySelector('input') as HTMLInputElement).click();
+    (daviplata.querySelector('input') as HTMLInputElement).click();
     fixture.detectChanges();
 
     (fixture.nativeElement.querySelector('.confirm') as HTMLButtonElement).click();
 
     const create = httpMock.expectOne(`${environment.apiUrl}/api/orders`);
-    expect(create.request.body).toEqual({ paymentMethod: 'TRANSFER', addressId: 'addr-1' });
-    create.flush({ ...ORDER, payment: { ...ORDER.payment!, method: 'TRANSFER', status: 'PENDING' } });
+    expect(create.request.body).toEqual({ paymentMethod: 'DAVIPLATA', addressId: 'addr-1' });
+    create.flush({ ...ORDER, payment: { ...ORDER.payment!, method: 'DAVIPLATA', status: 'PENDING', walletNumber: '3109876543' } });
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Transferencia bancaria');
+    expect(fixture.nativeElement.textContent).toContain('Daviplata');
+    expect(fixture.nativeElement.textContent).toContain('3109876543');
   });
 
   it('shows the error message when the order fails', () => {

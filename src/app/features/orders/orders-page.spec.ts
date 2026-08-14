@@ -32,7 +32,7 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
       deliveryNotes: null
     },
     items: [{ productId: 'p-1', productName: 'Agua Mineral 1.5L', unitPrice: 1.4, quantity: 2, subtotal: 2.8 }],
-    payment: { id: 'pay-1', method: 'CREDIT_CARD', status: 'COMPLETED', transactionId: 'SIM-1', amount: 2.8 },
+    payment: { id: 'pay-1', method: 'NEQUI', status: 'COMPLETED', transactionId: 'SIM-1', walletNumber: '3001234567', amount: 2.8 },
     createdAt: '2026-08-01T00:00:00.000Z',
     updatedAt: '2026-08-01T00:00:00.000Z',
     ...overrides

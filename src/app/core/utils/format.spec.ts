@@ -53,10 +53,9 @@ describe('productEmoji', () => {
 
 describe('paymentMethodLabel', () => {
   it('labels the known payment methods', () => {
-    expect(paymentMethodLabel('CREDIT_CARD')).toBe('Tarjeta de crédito');
-    expect(paymentMethodLabel('DEBIT_CARD')).toBe('Tarjeta de débito');
+    expect(paymentMethodLabel('NEQUI')).toBe('Nequi');
+    expect(paymentMethodLabel('DAVIPLATA')).toBe('Daviplata');
     expect(paymentMethodLabel('CASH_ON_DELIVERY')).toBe('Contra entrega');
-    expect(paymentMethodLabel('TRANSFER')).toBe('Transferencia bancaria');
   });
 });
 

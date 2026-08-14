@@ -47,10 +47,9 @@ export function productEmoji(product: Product): string {
 }
 
 const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
-  CREDIT_CARD: 'Tarjeta de crédito',
-  DEBIT_CARD: 'Tarjeta de débito',
-  CASH_ON_DELIVERY: 'Contra entrega',
-  TRANSFER: 'Transferencia bancaria'
+  NEQUI: 'Nequi',
+  DAVIPLATA: 'Daviplata',
+  CASH_ON_DELIVERY: 'Contra entrega'
 };
 
 /** Etiqueta legible de un método de pago. */

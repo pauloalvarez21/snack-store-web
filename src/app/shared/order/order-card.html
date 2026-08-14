@@ -66,6 +66,9 @@
           @if (order().payment; as payment) {
             <p>{{ paymentMethodLabel(payment.method) }}</p>
             <p class="muted">{{ paymentStatusLabel(payment) }}</p>
+            @if (payment.walletNumber) {
+              <p class="muted">📱 Billetera: {{ payment.walletNumber }}</p>
+            }
             @if (payment.transactionId) {
               <p class="muted">Ref: {{ payment.transactionId }}</p>
             }

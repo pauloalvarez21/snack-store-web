@@ -8,11 +8,7 @@ export type OrderStatus =
   | 'DELIVERED'
   | 'CANCELLED';
 
-export type PaymentMethod =
-  | 'CREDIT_CARD'
-  | 'DEBIT_CARD'
-  | 'CASH_ON_DELIVERY'
-  | 'TRANSFER';
+export type PaymentMethod = 'NEQUI' | 'DAVIPLATA' | 'CASH_ON_DELIVERY';
 
 export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
 
@@ -42,6 +38,8 @@ export interface OrderPayment {
   method: PaymentMethod;
   status: PaymentStatus;
   transactionId: string | null;
+  /** Número de billetera (Nequi/Daviplata) para que el cliente consigne. */
+  walletNumber: string | null;
   amount: number;
 }
 

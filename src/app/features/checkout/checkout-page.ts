@@ -20,21 +20,15 @@ interface PaymentOption {
 
 const PAYMENT_OPTIONS: PaymentOption[] = [
   {
-    value: 'CREDIT_CARD',
-    label: 'Tarjeta de crédito',
-    icon: '💳',
-    note: 'Cobro inmediato al confirmar'
+    value: 'NEQUI',
+    label: 'Nequi',
+    icon: '💚',
+    note: 'Queda pendiente hasta confirmar el pago'
   },
   {
-    value: 'DEBIT_CARD',
-    label: 'Tarjeta de débito',
-    icon: '🏦',
-    note: 'Cobro inmediato al confirmar'
-  },
-  {
-    value: 'TRANSFER',
-    label: 'Transferencia bancaria',
-    icon: '💸',
+    value: 'DAVIPLATA',
+    label: 'Daviplata',
+    icon: '💙',
     note: 'Queda pendiente hasta confirmar el pago'
   },
   {
@@ -62,7 +56,7 @@ export class CheckoutPage {
   protected readonly order = signal<Order | null>(null);
   protected readonly submitting = signal(false);
   protected readonly errorMsg = signal<string | null>(null);
-  protected readonly paymentMethod = signal<PaymentMethod>('CREDIT_CARD');
+  protected readonly paymentMethod = signal<PaymentMethod>('NEQUI');
   protected readonly paymentOptions = PAYMENT_OPTIONS;
 
   // ===== Direcciones =====

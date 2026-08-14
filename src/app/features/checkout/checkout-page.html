@@ -24,13 +24,15 @@
       }
 
       <div class="success-total">
-        <span>Total ({{ paymentLabel(order()?.payment?.method ?? 'TRANSFER') }})</span>
+        <span>Total ({{ paymentLabel(order()?.payment?.method ?? 'NEQUI') }})</span>
         <strong>{{ formatPrice(order()?.total ?? 0) }}</strong>
       </div>
 
-      @if (order()?.payment?.method === 'TRANSFER') {
+      @if (order()?.payment?.method === 'NEQUI' || order()?.payment?.method === 'DAVIPLATA') {
         <p class="success-note">
-          Te contactaremos con los datos de la transferencia para confirmar el pago.
+          Paga con <strong>{{ paymentLabel(order()?.payment?.method ?? 'NEQUI') }}</strong> al número
+          <strong>{{ order()?.payment?.walletNumber ?? 'indicado por nuestro equipo' }}</strong>.
+          Tu pedido queda pendiente hasta que confirmemos el pago.
         </p>
       } @else if (order()?.payment?.method === 'CASH_ON_DELIVERY') {
         <p class="success-note">
