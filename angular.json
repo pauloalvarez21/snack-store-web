@@ -36,6 +36,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/snack/",
               "budgets": [
                 {
                   "type": "initial",
