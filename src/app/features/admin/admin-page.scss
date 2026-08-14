@@ -514,6 +514,29 @@
 
   .tabs {
     width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .tab {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .btn-ghost.small,
+  .btn-cancel.small {
+    padding: 10px 16px;
+    font-size: 0.82rem;
+  }
+
+  .role-select {
+    padding: 10px 12px;
+    font-size: 0.84rem;
   }
 }

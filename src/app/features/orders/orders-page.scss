@@ -203,6 +203,23 @@
     padding: 0 14px;
   }
 
+  .tabs {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .tab {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
   .summary-grid {
     grid-template-columns: repeat(2, 1fr);
   }

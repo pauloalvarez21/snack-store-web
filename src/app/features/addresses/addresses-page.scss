@@ -188,3 +188,10 @@
 .page-error {
   margin: 0;
 }
+
+@media (max-width: 560px) {
+  .mini-btn {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+}

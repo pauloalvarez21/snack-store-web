@@ -219,6 +219,18 @@ describe('CatalogPage', () => {
     expect(fixture.nativeElement.querySelectorAll('app-product-card').length).toBe(1);
   });
 
+  it('keeps the filters sidebar from widening the grid beyond its container (regresión móvil)', () => {
+    flushInitial();
+
+    // Regresión: sin min-width: 0 en .filters, la fila de categorías (nowrap)
+    // fuerza el min-content del track y la página desborda horizontalmente en móvil.
+    const styles = Array.from(document.querySelectorAll('style'))
+      .map((s) => s.textContent ?? '')
+      .join('\n');
+
+    expect(styles).toMatch(/\.filters[^{]*\{[^}]*min-width\s*:\s*0/);
+  });
+
   it('adds a product to the cart and opens the drawer from the quick-buy button', () => {
     auth.token.set('token-fake');
     flushInitial();

@@ -106,6 +106,7 @@
 .filters {
   position: sticky;
   top: 84px;
+  min-width: 0;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--radius-lg);

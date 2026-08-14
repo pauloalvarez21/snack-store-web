@@ -1,16 +1,14 @@
-<header class="app-header">
-  <a class="brand" routerLink="/catalogo" aria-label="Snack Store — inicio">
+<header class="app-header" [class.menu-open]="mobileMenuOpen()">
+  <a class="brand" routerLink="/catalogo" aria-label="Snack Store — inicio" (click)="mobileMenuOpen.set(false)">
     <img
       class="brand-logo"
-      src="/images/logo.svg"
-      (error)="brandLogo.src = '/images/logo.png'"
-      #brandLogo
+      src="images/logo.svg"
       alt="Snack Store"
     />
     <span class="brand-name">Snack<span class="brand-accent">Store</span></span>
   </a>
 
-  <nav class="app-nav" aria-label="Navegación principal">
+  <nav class="app-nav" aria-label="Navegación principal" (click)="mobileMenuOpen.set(false)">
     <a routerLink="/catalogo" routerLinkActive="active" class="nav-link">Catálogo</a>
     @if (auth.isAuthenticated() && !isStaff()) {
       <a routerLink="/mis-pedidos" routerLinkActive="active" class="nav-link">Mis pedidos</a>
@@ -30,6 +28,15 @@
   </nav>
 
   <div class="header-actions">
+    <button
+      class="menu-toggle"
+      type="button"
+      (click)="mobileMenuOpen.set(!mobileMenuOpen())"
+      [attr.aria-expanded]="mobileMenuOpen()"
+      aria-label="Abrir menú de navegación"
+    >
+      <span aria-hidden="true">{{ mobileMenuOpen() ? '✕' : '☰' }}</span>
+    </button>
     <button
       class="theme-toggle"
       type="button"
@@ -51,7 +58,7 @@
     <button
       class="cart-button"
       type="button"
-      (click)="cart.open.set(true)"
+      (click)="cart.open.set(true); mobileMenuOpen.set(false)"
       aria-label="Abrir carrito"
     >
       <span class="cart-icon" aria-hidden="true">🛒</span>
@@ -63,6 +70,13 @@
 <main class="app-main">
   <router-outlet />
 </main>
+
+<footer class="app-footer">
+  <div class="footer-inner">
+    <span class="footer-brand">Snack<span class="footer-accent">Store</span></span>
+    <span class="footer-copy">© {{ year() }} Todos los derechos reservados · Gaelectronica</span>
+  </div>
+</footer>
 
 @if (cart.open()) {
   <app-cart-drawer />

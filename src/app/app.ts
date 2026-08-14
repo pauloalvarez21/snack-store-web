@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AuthService } from './core/services/auth.service';
@@ -24,6 +24,11 @@ export class App {
     return name || 'Usuario';
   });
 
+  protected readonly year = signal(new Date().getFullYear());
+
+  /** Menú de navegación en móvil (hamburguesa). */
+  protected readonly mobileMenuOpen = signal(false);
+
   /** Personal operativo: ve el panel de pedidos. */
   protected readonly isStaff = computed(() => {
     const role = this.auth.user()?.role;
@@ -42,6 +47,7 @@ export class App {
   }
 
   protected logout(): void {
+    this.mobileMenuOpen.set(false);
     this.auth.logout();
     this.cart.reset();
   }

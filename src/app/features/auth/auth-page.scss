@@ -270,3 +270,17 @@
   padding: 13px;
   font-size: 0.95rem;
 }
+
+@media (max-width: 560px) {
+  .auth-page {
+    padding: 24px 14px 48px;
+  }
+
+  .auth-card {
+    padding: 24px 20px;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}
