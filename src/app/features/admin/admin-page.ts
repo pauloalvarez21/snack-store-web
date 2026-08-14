@@ -17,7 +17,7 @@ import { CategoriesService } from '../../core/services/categories.service';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ProductsService } from '../../core/services/products.service';
 import { UsersService } from '../../core/services/users.service';
-import { USER_ROLES, formatDateTime, formatPrice, productEmoji, userRoleLabel } from '../../core/utils/format';
+import { USER_ROLES, formatDateTime, formatPrice, userRoleLabel } from '../../core/utils/format';
 import { OrderPagination } from '../../shared/order/order-pagination';
 import { OrderSkeleton } from '../../shared/order/order-skeleton';
 
@@ -50,6 +50,21 @@ export class AdminPage {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly tab = signal<AdminTab>('products');
+
+  /** IDs de productos cuya imagen no cargó (URL rota): cae al placeholder local. */
+  protected readonly failedImages = signal<Set<string>>(new Set());
+  /** La vista previa del form no cargó la imagen: muestra el placeholder local. */
+  protected readonly previewFailed = signal(false);
+
+  protected markImageFailed(id: string): void {
+    this.failedImages.update((set) => (set.has(id) ? set : new Set(set).add(id)));
+  }
+
+  protected productImageSrc(product: Product): string {
+    return this.failedImages().has(product.id) || !product.imageUrl
+      ? 'images/product-placeholder.svg'
+      : product.imageUrl;
+  }
 
   // ===== Búsquedas (debounce manual con input nativo) =====
   protected readonly productSearch = signal('');
@@ -159,7 +174,6 @@ export class AdminPage {
 
   protected readonly formatPrice = formatPrice;
   protected readonly formatDateTime = formatDateTime;
-  protected readonly productEmoji = productEmoji;
   protected readonly stockStatusLabel = STOCK_STATUS_LABEL;
   protected readonly stockClass = (s: StockStatus): string => STOCK_CLASS[s];
 
@@ -210,6 +224,7 @@ export class AdminPage {
 
   protected openProductForm(product: Product | null = null): void {
     this.productFeedback.set(null);
+    this.previewFailed.set(false);
     this.productEditingId.set(product ? product.id : null);
     if (product) {
       this.productForm.setValue({

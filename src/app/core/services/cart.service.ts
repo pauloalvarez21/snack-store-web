@@ -178,7 +178,9 @@ export class CartService {
       isPerishable: false,
       isOrganic: false,
       imageUrl: info.imageUrl,
-      isActive: true
+      isActive: true,
+      inStock: info.inStock,
+      stockStatus: info.stockStatus
     };
   }
 }

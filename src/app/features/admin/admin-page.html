@@ -132,7 +132,12 @@
               <span>{{ uploadingImage() ? 'Subiendo…' : '📤 Subir imagen' }}</span>
             </label>
             @if (productForm.controls.imageUrl.value) {
-              <img class="thumb" [src]="productForm.controls.imageUrl.value" alt="Vista previa" />
+              <img
+                class="thumb"
+                [src]="previewFailed() ? 'images/product-placeholder.svg' : productForm.controls.imageUrl.value"
+                alt="Vista previa"
+                (error)="previewFailed.set(true)"
+              />
             }
           </div>
           <div class="form-actions">
@@ -163,11 +168,12 @@
         <div class="list">
           @for (product of products(); track product.id) {
             <article class="row">
-              @if (product.imageUrl) {
-                <img class="row-thumb" [src]="product.imageUrl" [alt]="product.name" />
-              } @else {
-                <span class="row-thumb emoji" aria-hidden="true">{{ productEmoji(product) }}</span>
-              }
+              <img
+                class="row-thumb"
+                [src]="productImageSrc(product)"
+                [alt]="product.name"
+                (error)="markImageFailed(product.id)"
+              />
               <div class="row-main">
                 <span class="row-title">{{ product.name }}</span>
                 <span class="row-sub">{{ product.sku }} · {{ categoryName(product.categoryId) }}</span>

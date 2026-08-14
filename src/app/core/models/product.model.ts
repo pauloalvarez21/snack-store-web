@@ -1,3 +1,4 @@
+import { StockStatus } from './cart.model';
 import { Category } from './category.model';
 
 export interface Product {
@@ -15,6 +16,9 @@ export interface Product {
   isOrganic: boolean;
   imageUrl: string | null;
   isActive: boolean;
+  /** Disponibilidad de stock (la entrega el carrito / inventario). */
+  inStock?: boolean;
+  stockStatus?: StockStatus;
   createdAt?: string;
   updatedAt?: string;
 }

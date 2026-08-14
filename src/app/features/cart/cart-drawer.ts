@@ -33,4 +33,9 @@ export class CartDrawer {
     this.cart.open.set(false);
     this.router.navigate(['/auth'], { queryParams: { returnUrl: this.router.url } });
   }
+
+  protected goCatalog(): void {
+    this.cart.open.set(false);
+    this.router.navigate(['/catalogo']);
+  }
 }

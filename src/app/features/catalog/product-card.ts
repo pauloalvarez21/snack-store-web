@@ -1,10 +1,10 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Product } from '../../core/models/product.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
-import { formatPrice, productEmoji } from '../../core/utils/format';
+import { formatPrice } from '../../core/utils/format';
 
 @Component({
   selector: 'app-product-card',
@@ -19,7 +19,11 @@ export class ProductCard {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly emoji = computed(() => productEmoji(this.product()));
+  /** True si la imagen del producto no cargó (URL rota): cae al placeholder local. */
+  protected readonly imageFailed = signal(false);
+  protected readonly imageSrc = computed(() =>
+    this.imageFailed() ? 'images/product-placeholder.svg' : (this.product().imageUrl ?? 'images/product-placeholder.svg')
+  );
   protected readonly discount = computed(() => {
     const p = this.product();
     if (!p.salePrice || p.salePrice >= p.price) return null;
@@ -29,6 +33,10 @@ export class ProductCard {
   protected readonly oldPrice = computed(() =>
     this.product().salePrice ? formatPrice(this.product().price) : null
   );
+
+  protected onImageError(): void {
+    this.imageFailed.set(true);
+  }
 
   protected addToCart(): void {
     // El carrito vive en el servidor: sin sesión, primero a login y luego se agrega.

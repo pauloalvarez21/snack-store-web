@@ -16,7 +16,7 @@
     <div class="cart-empty">
       <span class="cart-empty-emoji" aria-hidden="true">🛒</span>
       <p>Tu carrito está vacío</p>
-      <button class="btn-primary" type="button" (click)="cart.open.set(false)">Ver catálogo</button>
+      <button class="btn-primary" type="button" (click)="goCatalog()">Ver catálogo</button>
     </div>
   } @else {
     <ul class="cart-items">
@@ -26,6 +26,11 @@
           <div class="item-info">
             <p class="item-name">{{ item.product.name }}</p>
             <p class="item-unit">{{ item.product.unit }} · {{ item.product.sku }}</p>
+            @if (item.product.stockStatus === 'OUT_OF_STOCK') {
+              <p class="item-stock-out">Agotado</p>
+            } @else if (item.product.stockStatus === 'LOW_STOCK') {
+              <p class="item-stock-low">Quedan pocas unidades</p>
+            }
           </div>
           <div class="item-actions">
             <div class="stepper">

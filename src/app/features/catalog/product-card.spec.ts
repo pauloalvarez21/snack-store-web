@@ -93,6 +93,24 @@ describe('ProductCard — compra rápida', () => {
     expect(btn.getAttribute('aria-label')).toBe('Agregar Agua Mineral 1.5L al carrito');
   });
 
+  it('uses the local placeholder when the product has no image', () => {
+    const img = fixture.nativeElement.querySelector('.media img') as HTMLImageElement;
+    expect(img.getAttribute('src')).toBe('images/product-placeholder.svg');
+  });
+
+  it('falls back to the local placeholder when the product image fails to load', () => {
+    fixture.componentRef.setInput('product', { ...PRODUCT, imageUrl: 'https://cdn.example/rota.png' });
+    fixture.detectChanges();
+
+    const img = fixture.nativeElement.querySelector('.media img') as HTMLImageElement;
+    expect(img.getAttribute('src')).toBe('https://cdn.example/rota.png');
+
+    img.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+
+    expect(img.getAttribute('src')).toBe('images/product-placeholder.svg');
+  });
+
   it('adds the product to the cart and opens the drawer when authenticated', () => {
     auth.token.set('token-fake');
     fixture.detectChanges();

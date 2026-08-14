@@ -1,10 +1,11 @@
 <article class="product-card">
   <div class="media">
-    @if (product().imageUrl) {
-      <img [src]="product().imageUrl" [alt]="product().name" loading="lazy" />
-    } @else {
-      <div class="media-emoji" aria-hidden="true">{{ emoji() }}</div>
-    }
+    <img
+      [src]="imageSrc()"
+      [alt]="product().name"
+      loading="lazy"
+      (error)="onImageError()"
+    />
     <div class="badges">
       @if (discount()) {
         <span class="badge badge-sale">-{{ discount() }}%</span>

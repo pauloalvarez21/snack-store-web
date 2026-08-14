@@ -30,6 +30,15 @@ export class OrderCard {
 
   protected paymentStatusLabel(payment: Order['payment']): string {
     if (!payment) return '';
-    return payment.status === 'COMPLETED' ? 'Pagado' : 'Pendiente';
+    switch (payment.status) {
+      case 'COMPLETED':
+        return 'Pagado';
+      case 'FAILED':
+        return 'Pago fallido';
+      case 'REFUNDED':
+        return 'Reembolsado';
+      default:
+        return 'Pendiente';
+    }
   }
 }

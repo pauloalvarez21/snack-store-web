@@ -100,12 +100,54 @@ describe('CartDrawer', () => {
     expect(fixture.nativeElement.textContent).toContain('Tu carrito está vacío');
   });
 
+  it('navigates to the catalog from the empty state', () => {
+    auth.token.set('token-fake');
+    fixture.detectChanges();
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    const catalogBtn = Array.from(fixture.nativeElement.querySelectorAll('button')).find((b) =>
+      (b as HTMLElement).textContent?.includes('Ver catálogo')
+    ) as HTMLButtonElement;
+    catalogBtn.click();
+
+    expect(navigate).toHaveBeenCalledWith(['/catalogo']);
+    expect(cart.open()).toBe(false);
+  });
+
   it('renders items, quantities and the subtotal', () => {
     seedCart();
 
     expect(fixture.nativeElement.textContent).toContain('Agua Mineral 1.5L');
     expect(fixture.nativeElement.textContent).toContain('2');
     expect(fixture.nativeElement.textContent).toContain('$2,800.00');
+  });
+
+  it('warns about low-stock and out-of-stock items', () => {
+    auth.token.set('token-fake');
+    cart.add({
+      id: 'p-1',
+      categoryId: null,
+      sku: 'AGUA-1',
+      name: 'Agua Mineral 1.5L',
+      slug: 'agua-mineral-1-5l',
+      description: null,
+      price: 1400,
+      salePrice: null,
+      unit: 'botella',
+      isPerishable: false,
+      isOrganic: false,
+      imageUrl: null,
+      isActive: true
+    });
+    httpMock.expectOne(`${environment.apiUrl}/api/carts/me/items`).flush({
+      ...CART_RESPONSE,
+      items: [
+        { ...CART_RESPONSE.items[0], product: { ...CART_RESPONSE.items[0].product!, stockStatus: 'LOW_STOCK' } }
+      ]
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Quedan pocas unidades');
   });
 
   it('increases and decreases the quantity via the stepper', () => {

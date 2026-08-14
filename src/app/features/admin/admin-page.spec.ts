@@ -132,6 +132,19 @@ describe('AdminPage', () => {
     expect(rows[0].textContent).toContain('$1,400.00');
   });
 
+  it('falls back to the placeholder when a product image fails to load', () => {
+    flushInitial();
+
+    const rowThumb = fixture.nativeElement.querySelector('.row-thumb') as HTMLElement;
+    expect(rowThumb.tagName).toBe('IMG');
+    expect(rowThumb.getAttribute('src')).toBe('images/product-placeholder.svg');
+
+    rowThumb.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+
+    expect(rowThumb.getAttribute('src')).toBe('images/product-placeholder.svg');
+  });
+
   it('switches to the categories tab', () => {
     flushInitial();
 
