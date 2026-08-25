@@ -1,6 +1,6 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { fieldError, matchingPasswords, notBlank } from './validation';
+import { fieldError, matchingPasswords, notBlank, strongPassword } from './validation';
 
 describe('fieldError', () => {
   it('returns null when the control has no errors', () => {
@@ -35,6 +35,13 @@ describe('fieldError', () => {
     expect(fieldError(null)).toBeNull();
     expect(fieldError(undefined)).toBeNull();
   });
+
+  it('returns the strong password message for weak passwords', () => {
+    const control = new FormControl('miclave123');
+    control.setErrors({ strongPassword: { hasUpper: false, hasLower: true, hasNumber: true } });
+    control.markAsTouched();
+    expect(fieldError(control)).toBe('Debe tener mayúscula, minúscula y número.');
+  });
 });
 
 describe('matchingPasswords', () => {
@@ -55,6 +62,44 @@ describe('matchingPasswords', () => {
 
   it('returns null while the fields are empty', () => {
     expect(matchingPasswords(group('', ''))).toBeNull();
+  });
+});
+
+describe('strongPassword', () => {
+  function ctrl(value: string): FormControl {
+    return new FormControl(value);
+  }
+
+  it('returns null when the password meets all requirements', () => {
+    expect(strongPassword(ctrl('MiClave123'))).toBeNull();
+  });
+
+  it('returns null when the field is empty (other validators handle required)', () => {
+    expect(strongPassword(ctrl(''))).toBeNull();
+  });
+
+  it('returns null when the password is too short (minLength handles this)', () => {
+    expect(strongPassword(ctrl('Ab1'))).toBeNull();
+  });
+
+  it('returns an error when missing uppercase', () => {
+    const result = strongPassword(ctrl('miclave123'));
+    expect(result).toEqual({ strongPassword: { hasUpper: false, hasLower: true, hasNumber: true } });
+  });
+
+  it('returns an error when missing lowercase', () => {
+    const result = strongPassword(ctrl('MICLAVE123'));
+    expect(result).toEqual({ strongPassword: { hasUpper: true, hasLower: false, hasNumber: true } });
+  });
+
+  it('returns an error when missing number', () => {
+    const result = strongPassword(ctrl('MiClaveX'));
+    expect(result).toEqual({ strongPassword: { hasUpper: true, hasLower: true, hasNumber: false } });
+  });
+
+  it('returns an error when missing uppercase and number', () => {
+    const result = strongPassword(ctrl('miclavex'));
+    expect(result).toEqual({ strongPassword: { hasUpper: false, hasLower: true, hasNumber: false } });
   });
 });
 

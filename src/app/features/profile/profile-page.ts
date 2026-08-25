@@ -6,7 +6,7 @@ import { UserRole } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { UsersService } from '../../core/services/users.service';
 import { userRoleLabel } from '../../core/utils/format';
-import { fieldError, matchingPasswords, notBlank } from '../../core/utils/validation';
+import { fieldError, matchingPasswords, notBlank, strongPassword } from '../../core/utils/validation';
 
 @Component({
   selector: 'app-profile-page',
@@ -47,7 +47,7 @@ export class ProfilePage {
   protected readonly passwordForm = new FormGroup(
     {
       currentPassword: new FormControl('', [Validators.required]),
-      newPassword: new FormControl('', [Validators.required, Validators.minLength(8)]),
+      newPassword: new FormControl('', [Validators.required, Validators.minLength(8), strongPassword]),
       confirmPassword: new FormControl('', [Validators.required])
     },
     { validators: matchingPasswords }

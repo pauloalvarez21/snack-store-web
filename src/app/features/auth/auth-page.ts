@@ -5,7 +5,7 @@ import { finalize, of, switchMap } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
-import { fieldError, notBlank } from '../../core/utils/validation';
+import { fieldError, notBlank, strongPassword } from '../../core/utils/validation';
 
 @Component({
   selector: 'app-auth-page',
@@ -34,7 +34,7 @@ export class AuthPage {
     lastName: new FormControl('', [Validators.required, notBlank]),
     email: new FormControl('', [Validators.required, Validators.email]),
     phone: new FormControl(''),
-    password: new FormControl('', [Validators.required, Validators.minLength(8)])
+    password: new FormControl('', [Validators.required, Validators.minLength(8), strongPassword])
   });
 
   protected switchMode(mode: 'login' | 'register'): void {
@@ -55,7 +55,7 @@ export class AuthPage {
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => this.redirectAfterAuth(),
-        error: () => this.errorMsg.set('Credenciales inválidas. Revisa tu email y contraseña.')
+        error: (err) => this.errorMsg.set(this.loginError(err))
       });
   }
 
@@ -90,8 +90,15 @@ export class AuthPage {
     return fieldError(form.get(field));
   }
 
+  private loginError(err: unknown): string {
+    const status = (err as { status?: number }).status;
+    if (status === 429) return 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.';
+    return 'Credenciales inválidas. Revisa tu email y contraseña.';
+  }
+
   private registerError(err: unknown): string {
     const status = (err as { status?: number }).status;
+    if (status === 429) return 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.';
     if (status === 409) return 'Ese email ya está registrado. Intenta iniciar sesión.';
     return 'No pudimos crear tu cuenta. Inténtalo de nuevo.';
   }

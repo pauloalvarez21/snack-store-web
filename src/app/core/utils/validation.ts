@@ -13,6 +13,9 @@ export function fieldError(control: AbstractControl | null | undefined): string 
   if (control.errors['minlength']) {
     return `Mínimo ${control.errors['minlength'].requiredLength} caracteres.`;
   }
+  if (control.errors['strongPassword']) {
+    return 'Debe tener mayúscula, minúscula y número.';
+  }
   return null;
 }
 
@@ -39,4 +42,19 @@ export const notBlank: ValidatorFn = (control: AbstractControl): ValidationError
     return { blank: true };
   }
   return null;
+};
+
+/**
+ * Valida que la contraseña cumpla con la política del backend:
+ * mínimo 8 caracteres, al menos 1 mayúscula, 1 minúscula y 1 número.
+ */
+export const strongPassword: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const value: string = control.value;
+  if (!value) return null; // se encarga `required`
+  if (value.length < 8) return null; // se encarga `minLength`
+  const hasUpper = /[A-Z]/.test(value);
+  const hasLower = /[a-z]/.test(value);
+  const hasNumber = /\d/.test(value);
+  if (hasUpper && hasLower && hasNumber) return null;
+  return { strongPassword: { hasUpper, hasLower, hasNumber } };
 };
